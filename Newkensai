@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- 確保加入主畫面時顯示的名字為 Kansai2026 -->
+    <title>Kansai2026</title>
+    <meta name="apple-mobile-web-app-title" content="Kansai2026">
+    <meta name="application-name" content="Kansai2026">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <!-- React & Babel -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #fdfafb; /* 柔和米白 */
+            color: #4a4a4a;
+            -webkit-tap-highlight-color: transparent;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* 隱藏捲軸但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* 玻璃擬態卡片 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* 莫蘭迪色系定義 */
+        .bg-morandi-main { background-color: #78C2C4; } /* 神戶/主色 - 青瓷綠 */
+        .text-morandi-main { color: #78C2C4; }
+        .bg-morandi-pink { background-color: #FEDFE1; } /* 大阪 - 淡櫻粉 */
+        .text-morandi-pink { color: #FEDFE1; }
+        .bg-morandi-yellow { background-color: #FAD689; } /* 奈良 - 芥末黃 */
+        .bg-morandi-green { background-color: #A8D8B9; } /* 和歌山 - 草木綠 */
+        
+        /* 動畫 */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // --- 資料數據 ---
+        
+        // 行程資料 (已更新交通票券指示)
+        const itineraryData = [
+            {
+                day: 1,
+                date: "02/16",
+                weekday: "週一",
+                location: "神戶",
+                color: "bg-[#78C2C4]",
+                events: [
+                    { time: "17:10", title: "抵達關西機場 T2", icon: "plane-arrival", desc: "準備前往神戶市區", type: "flight" },
+                    { 
+                        time: "交通", 
+                        title: "關西機場 ➔ 神戶三宮站 💳刷IC卡或購票", 
+                        icon: "train", 
+                        type: "transport",
+                        desc: "方案 A (高速船 - 推薦)：關西機場 T1 (12號櫃檯) / T2 (接駁車) → 高速船碼頭 ➔ 搭乘 Bay Shuttle 高速船 (往神戶機場) ➔ 神戶機場棧橋 → 步行至神戶機場站 ➔ 搭乘 Port Liner 港灣人工島線 (往三宮) ➔ 下車：三宮站\n方案 B (JR)：關西機場站 ➔ 搭乘 JR 關空快速 (往天王寺/大阪) ➔ 大阪站 (轉乘) ➔ 搭乘 JR 神戶線 新快速 (往姬路/西明石) ➔ 下車：三宮站 (東口出口)" 
+                    },
+                    { time: "19:30", title: "神戶美利堅公園東方大酒店", icon: "hotel", desc: "Check-in", type: "hotel" },
+                    { 
+                        time: "交通", 
+                        title: "神戶三宮站 ➔ 飯店 💳刷IC卡", 
+                        icon: "bus", 
+                        type: "transport",
+                        desc: "方案 A：三宮站 Mint Kobe 1樓巴士總站 (8號月台) ➔ 搭乘飯店免費接駁巴士\n方案 B：步行 (約 20 分) 或 計程車 (約 10 分)" 
+                    },
+                    { time: "20:30", title: "美利堅公園", icon: "person-running", desc: "活動：神戶港灣夜跑 (美利堅公園至臨海樂園，享受 5-10km 的浪漫海風夜跑)", type: "activity" }
+                ]
+            },
+            {
+                day: 2,
+                date: "02/17",
+                weekday: "週二",
+                location: "神戶",
+                color: "bg-[#78C2C4]",
+                events: [
+                    { 
+                        time: "交通", 
+                        title: "飯店 ➔ 兵庫縣立美術館 🎫KRP 3日券", 
+                        icon: "train-tram", 
+                        type: "transport",
+                        desc: "上車：飯店接駁巴士 → 三宮站\n進站：阪神 三宮站 ➔ 搭乘：阪神本線 普通 (往大阪梅田)\n下車：岩屋站 (Iwaya) ➔ 出口：南口 → 步行約 10 分鐘" 
+                    },
+                    { time: "10:00", title: "兵庫縣立美術館", icon: "building", desc: "安藤忠雄操刀設計，欣賞極簡清水模建築與海景，與巨大「青蘋果」合影", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "兵庫縣立美術館 ➔ 神戶舊居留地 🎫KRP 3日券", 
+                        icon: "train-tram", 
+                        type: "transport",
+                        desc: "上車：岩屋站 ➔ 搭乘：阪神本線 (往神戶三宮/元町)\n下車：元町站 (Motomachi) ➔ 出口：東改札口 → 步行至舊居留地" 
+                    },
+                    { time: "12:30", title: "神戶舊居留地", icon: "utensils", desc: "午餐：感受歐風歷史建築群與質感咖啡廳", type: "food" },
+                    { time: "14:30", title: "神戸 栄町通", icon: "store", desc: "逛街：尋寶隱藏在舊大樓裡的獨立文具店、藝術質感小物與家飾", type: "shopping" },
+                    { time: "17:00", title: "神戶牛排 Ishida. 本店", icon: "utensils", desc: "晚餐：網路預約限定優質雙人套餐 (步行前往)", type: "food" },
+                    { 
+                        time: "交通", 
+                        title: "神戶三宮站 ➔ 摩耶山 掬星台 💳刷IC卡", 
+                        icon: "bus", 
+                        type: "transport",
+                        desc: "上車：三宮站前巴士站 (Mint Kobe 下方) ➔ 搭乘：神戶市巴士 18 系統 (往摩耶纜車下)\n下車：摩耶纜車下站 ➔ 轉乘：摩耶 Viewline (纜車 + 索道) → 星之站\n(註：KRP不含巴士與纜車)" 
+                    },
+                    { time: "19:00", title: "掬星台", icon: "star", desc: "特別景點：日本三大夜景，極度浪漫", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "掬星台 ➔ 飯店 💳刷IC卡", 
+                        icon: "bus", 
+                        type: "transport",
+                        desc: "上車：星之站 (索道 + 纜車) 下山 ➔ 轉乘：神戶市巴士 18 系統 (往三宮) ➔ 三宮站 ➔ 飯店接駁巴士" 
+                    }
+                ]
+            },
+            {
+                day: 3,
+                date: "02/18",
+                weekday: "週三",
+                location: "有馬",
+                color: "bg-[#78C2C4]",
+                events: [
+                    { time: "10:00", title: "神戶美利堅公園東方大酒店", icon: "door-open", desc: "Check-out", type: "hotel" },
+                    { 
+                        time: "交通", 
+                        title: "神戶三宮站 ➔ 有馬溫泉站 🎫KRP 3日券", 
+                        icon: "train", 
+                        type: "transport",
+                        desc: "推薦路線 (KRP全包)：三宮站搭乘神戶市營地下鐵 (往谷上) ➔ 轉乘：谷上站 (同月台) → 神戶電鐵有馬線 (往三田/有馬) ➔ 轉乘：有馬口站 → 有馬溫泉線 ➔ 下車：有馬溫泉站" 
+                    },
+                    { time: "11:30", title: "有馬溫泉", icon: "water", desc: "行程：溫泉街老舖巡禮、品嚐炭酸煎餅", type: "activity" },
+                    { time: "15:00", title: "月光園遊月山莊", icon: "hotel", desc: "Check-in: 享受房內專屬露天風呂，寫意放鬆", type: "hotel" },
+                    { time: "18:00", title: "月光園遊月山莊", icon: "utensils", desc: "晚餐：旅館內享用傳統職人料理", type: "food" }
+                ]
+            },
+            {
+                day: 4,
+                date: "02/19",
+                weekday: "週四",
+                location: "大阪",
+                color: "bg-[#FEDFE1]",
+                events: [
+                    { time: "11:00", title: "月光園遊月山莊", icon: "door-open", desc: "Check-out / 離開有馬溫泉，結束溫泉之旅，前往大阪", type: "hotel" },
+                    { 
+                        time: "交通", 
+                        title: "有馬溫泉站 ➔ 大阪梅田站 🎫KRP 3日券", 
+                        icon: "train", 
+                        type: "transport",
+                        desc: "推薦路線 (KRP全包)：有馬溫泉站 ➔ 神戶電鐵 (往谷上) ➔ 谷上站 ➔ 神戶市營地鐵 (往三宮) ➔ 三宮站 ➔ 轉乘 阪急神戸線 特急 (往大阪梅田) ➔ 下車：大阪梅田站\n(註：若搭乘阪急高速巴士需額外自費)" 
+                    },
+                    { 
+                        time: "交通", 
+                        title: "大阪梅田站 ➔ 本町站 💳刷IC卡", 
+                        icon: "train-subway", 
+                        type: "transport",
+                        desc: "進站：梅田站 (M16) ➔ 搭乘：大阪地下鐵 御堂筋線 (往天王寺/中百舌鳥)\n下車：本町站 (M18) ➔ 出口：13號或11號出口" 
+                    },
+                    { time: "13:00", title: "東急stay大阪本町酒店", icon: "hotel", desc: "寄放行李", type: "hotel" },
+                    { 
+                        time: "交通", 
+                        title: "本町站 ➔ 中崎町站 💳刷IC卡", 
+                        icon: "train-subway", 
+                        type: "transport",
+                        desc: "本町站 (M18) ➔ 御堂筋線 → 梅田站 (M16) ➔ 步行至 東梅田站 (T20) ➔ 谷町線 → 中崎町站 (T19)" 
+                    },
+                    { time: "14:00", title: "中崎町", icon: "flask", desc: "體驗：散策與調香體驗 (復古巷弄，調製專屬紀念香水)", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "中崎町站 ➔ 天王寺站 💳刷IC卡", 
+                        icon: "train-subway", 
+                        type: "transport",
+                        desc: "中崎町站 (T19) ➔ 谷町線 → 天王寺站 (T27)" 
+                    },
+                    { time: "16:00", title: "Sports Depo 天王寺店", icon: "bag-shopping", desc: "位於 Q's Mall，商品齊全的運動用品專賣店", type: "shopping" },
+                    { time: "18:30", title: "Harukas 300", icon: "city", desc: "特別景點：阿倍野 HARUKAS 300 展望台，俯瞰大阪絕美夜景", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "天王寺站 ➔ 飯店 💳刷IC卡", 
+                        icon: "train-subway", 
+                        type: "transport",
+                        desc: "天王寺站 (M23) ➔ 御堂筋線 → 本町站 (M18)" 
+                    }
+                ]
+            },
+            {
+                day: 5,
+                date: "02/20",
+                weekday: "週五",
+                location: "大阪",
+                color: "bg-[#FEDFE1]",
+                events: [
+                    { 
+                        time: "交通", 
+                        title: "飯店 ➔ 肥後橋站 💳刷IC卡", 
+                        icon: "train-subway", 
+                        type: "transport", 
+                        desc: "本町站 (Y13) ➔ 四橋線 → 肥後橋站 (Y12)" 
+                    },
+                    { time: "10:00", title: "中之島公園", icon: "tree", desc: "活動：散步 (美術館、童書森林與紅磚公會堂，寫意早晨)", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "肥後橋站 ➔ 四橋站 💳刷IC卡", 
+                        icon: "train-subway", 
+                        type: "transport", 
+                        desc: "肥後橋站 (Y12) ➔ 四橋線 → 四橋站 (Y14) ➔ 6號出口" 
+                    },
+                    { time: "13:30", title: "Orange Street", icon: "shirt", desc: "逛街：南堀江，匯集 Patagonia 等戶外山系服飾、潮流運動配件與設計家品", type: "shopping" },
+                    { 
+                        time: "交通", 
+                        title: "四橋站 ➔ 西梅田站 💳刷IC卡", 
+                        icon: "train-subway", 
+                        type: "transport", 
+                        desc: "四橋站 (Y14) ➔ 四橋線 → 西梅田站 (Y11) ➔ 步行至茶屋町" 
+                    },
+                    { time: "15:30", title: "梅田 Loft", icon: "pen-ruler", desc: "集中採購：美術用品", type: "shopping" },
+                    { time: "16:30", title: "SteP SPORTS Run City Osaka", icon: "person-running", desc: "位於茶屋町，LOFT對面，跑者聖地，專業跑鞋", type: "shopping" },
+                    { time: "18:00", title: "空中庭園展望台", icon: "cloud", desc: "地點：梅田藍天大廈，看夕陽漸層至夜景", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "梅田藍天大廈 ➔ 飯店 💳刷IC卡", 
+                        icon: "train-subway", 
+                        type: "transport", 
+                        desc: "梅田站 (M16) ➔ 御堂筋線 → 本町站 (M18)" 
+                    }
+                ]
+            },
+            {
+                day: 6,
+                date: "02/21",
+                weekday: "週六",
+                location: "奈良",
+                color: "bg-[#FAD689]",
+                events: [
+                    { 
+                        time: "交通", 
+                        title: "飯店 ➔ 近鐵奈良站 💳刷IC卡", 
+                        icon: "train", 
+                        type: "transport",
+                        desc: "本町站 (M18) ➔ 御堂筋線 → 難波站 (M20) ➔ 轉乘近鐵 ➔ 近鐵奈良站" 
+                    },
+                    { time: "10:00", title: "東大寺 & 奈良公園", icon: "deer", desc: "活動：大佛殿巡禮、晨間與小鹿互動", type: "activity" },
+                    { time: "13:30", title: "奈良 若草山", icon: "mountain", desc: "體驗：絕景行山 (漫步登上開闊的草地山坡，與小鹿相伴)", type: "activity" },
+                    { time: "15:30", title: "鹿猿狐包袱小路", icon: "store", desc: "逛街：中川政七旗艦店 (日本工藝生活家品)", type: "shopping" },
+                    { time: "17:00", title: "奈良町", icon: "mug-hot", desc: "體驗：茶道與和菓子 (在百年町家內參與傳統茶道)", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "近鐵奈良站 ➔ 飯店 💳刷IC卡", 
+                        icon: "train", 
+                        type: "transport",
+                        desc: "近鐵奈良站 ➔ 快速急行 → 大阪難波站 ➔ 轉乘御堂筋線 → 本町站" 
+                    }
+                ]
+            },
+            {
+                day: 7,
+                date: "02/22",
+                weekday: "週日",
+                location: "和歌山",
+                color: "bg-[#A8D8B9]",
+                events: [
+                    { time: "09:30", title: "東急stay大阪本町酒店", icon: "door-open", desc: "Check-out & 寄放行李 (輕裝前往)", type: "hotel" },
+                    { 
+                        time: "交通", 
+                        title: "大阪 ➔ 和歌山 🎫JR廣域5日券", 
+                        icon: "train", 
+                        type: "transport",
+                        desc: "1. 本町站 ➔ 天王寺站 (御堂筋線 💳刷IC卡)\n2. 天王寺站 ➔ JR 和歌山站 (搭乘 JR 特急黑潮號 Kuroshio，使用 JR Pass)" 
+                    },
+                    { time: "11:00", title: "和歌山大和ROYNET酒店", icon: "hotel", desc: "Check-in (寄放行李)", type: "hotel" },
+                    { 
+                        time: "交通", 
+                        title: "和歌山市區 ➔ 奧之院 💳刷IC卡/另購票", 
+                        icon: "car", 
+                        type: "transport",
+                        desc: "方案 A (租車/包車 - 推薦)：約 90-120 分鐘直達奧之院口\n方案 B (電車)：JR 和歌山線 (JR Pass OK) → 橋本站 ➔ 轉乘 南海高野線 (需另購票) → 極樂橋站 ➔ 纜車 ➔ 巴士" 
+                    },
+                    { time: "14:30", title: "奧之院", icon: "gopuram", desc: "參拜：高野山 (日本佛教聖地，漫步於千年杉木林參道)", type: "activity" },
+                    { time: "17:00", title: "和歌山城", icon: "chess-rook", desc: "活動：外圍欣賞點燈後的和歌山城夜景", type: "activity" },
+                    { time: "18:30", title: "井出商店", icon: "bowl-food", desc: "晚餐：品嚐全日本知名的正宗和歌山拉麵", type: "food" }
+                ]
+            },
+            {
+                day: 8,
+                date: "02/23",
+                weekday: "週一",
+                location: "和歌山",
+                color: "bg-[#A8D8B9]",
+                events: [
+                    { time: "09:00", title: "和歌山大和ROYNET酒店", icon: "door-open", desc: "Check-out", type: "hotel" },
+                    { 
+                        time: "交通", 
+                        title: "飯店 ➔ 貴志站 (來回) 🎫JR廣域5日券", 
+                        icon: "cat", 
+                        type: "transport",
+                        desc: "飯店 ➔ 巴士(💳IC) ➔ JR和歌山站 ➔ 轉乘【和歌山電鐵 貴志川線】(JR Pass 可搭乘) ➔ 貴志站看貓站長 ➔ 原路返回 JR和歌山站" 
+                    },
+                    { time: "10:00", title: "貴志站", icon: "paw", desc: "活動：探訪貓咪站長 (參觀車站與貓咪站長 二代玉/四代玉)", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "JR 和歌山站 ➔ 雜賀崎遊園 💳刷IC卡", 
+                        icon: "bus", 
+                        type: "transport", 
+                        desc: "JR 和歌山站巴士總站 ➔ 和歌山巴士 (往雜賀崎方向) ➔ 下車：雜賀崎遊園" 
+                    },
+                    { time: "13:30", title: "雜賀崎漁港", icon: "water", desc: "景點：有「日本阿瑪菲」之稱的浪漫復古海岸，享受海景咖啡廳", type: "activity" },
+                    { 
+                        time: "交通", 
+                        title: "雜賀崎 ➔ 關西機場 🎫JR廣域5日券", 
+                        icon: "plane", 
+                        type: "transport",
+                        desc: "1. 巴士(💳IC) ➔ 返回 JR和歌山站 或 南海和歌山市站\n2. 搭乘 JR 阪和線/關空快速 (JR Pass OK) ➔ 臨空城站\n3. 臨空城站 ➔ 關西機場站 (JR Pass OK)" 
+                    },
+                    { time: "16:30", title: "臨空城 Outlet", icon: "bag-shopping", desc: "最後血拼：集中掃貨各大運動品牌的跑步、網球鞋與服飾", type: "shopping" },
+                    { time: "23:00", title: "搭乘 MM069 航班", icon: "plane-departure", desc: "帶著滿滿回憶返回", type: "flight" }
+                ]
+            }
+        ];
+
+        // 筆記資料 (使用 LocalStorage)
+        const useNotes = () => {
+            const [notes, setNotes] = useState([]);
+            
+            useEffect(() => {
+                try {
+                    const saved = localStorage.getItem('trip_notes');
+                    if (saved) setNotes(JSON.parse(saved));
+                } catch (e) { console.error("LS Error", e); }
+            }, []);
+
+            const addNote = (note) => {
+                const newNotes = [...notes, note];
+                setNotes(newNotes);
+                try { localStorage.setItem('trip_notes', JSON.stringify(newNotes)); } catch(e){}
+            };
+
+            const deleteNote = (index) => {
+                const newNotes = notes.filter((_, i) => i !== index);
+                setNotes(newNotes);
+                try { localStorage.setItem('trip_notes', JSON.stringify(newNotes)); } catch(e){}
+            };
+
+            return { notes, addNote, deleteNote };
+        };
+
+        // 外部連結工具
+        const openMap = (query) => {
+            const q = encodeURIComponent(query);
+            // 嘗試使用 Universal Link / Intent
+            const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+            
+            if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                window.location.href = `comgooglemaps://?q=${q}`;
+                setTimeout(() => { window.location.href = `https://www.google.com/maps/search/?api=1&query=${q}`; }, 500);
+            } else if (/android/i.test(userAgent)) {
+                window.location.href = `geo:0,0?q=${q}`;
+                setTimeout(() => { window.location.href = `https://www.google.com/maps/search/?api=1&query=${q}`; }, 500);
+            } else {
+                window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank');
+            }
+        };
+
+        const openDirections = (title) => {
+            const parts = title.split('➔');
+            if (parts.length < 2) return openMap(title);
+            
+            const origin = encodeURIComponent(parts[0].replace('[交通]', '').trim());
+            const dest = encodeURIComponent(parts[1].split('(')[0].trim());
+            
+            window.open(`https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=transit`, '_blank');
+        };
+
+        // --- 元件 Components ---
+
+        // 1. 行程視圖 ItineraryView
+        const ItineraryView = () => {
+            return (
+                <div className="p-4 space-y-6 fade-in">
+                    <header className="mb-6">
+                        <h1 className="text-2xl font-bold text-gray-800">Kansai 2026</h1>
+                        <p className="text-sm text-gray-500">神戶 · 有馬 · 大阪 · 奈良 · 和歌山</p>
+                    </header>
+                    
+                    {itineraryData.map((dayData) => (
+                        <div key={dayData.day} className="relative pl-4 border-l-2 border-gray-200">
+                            <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white shadow-sm ${dayData.color}`}></div>
+                            
+                            <div className="mb-4">
+                                <h2 className="text-lg font-bold text-gray-800 flex items-center">
+                                    Day {dayData.day} <span className="mx-2 text-gray-300">|</span> {dayData.date} {dayData.weekday}
+                                </h2>
+                                <span className={`inline-block px-2 py-0.5 rounded text-xs text-white ${dayData.color} mt-1`}>
+                                    {dayData.location}
+                                </span>
+                            </div>
+
+                            <div className="space-y-4">
+                                {dayData.events.map((event, idx) => (
+                                    <div key={idx} className="glass-card p-3 rounded-xl flex gap-3 items-start">
+                                        <div className={`mt-1 w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 text-gray-400 shrink-0`}>
+                                            <i className={`fa-solid fa-${event.icon}`}></i>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex justify-between items-baseline mb-1">
+                                                <h3 className="font-bold text-gray-800 truncate pr-2 text-sm">{event.title}</h3>
+                                                <span className="text-xs font-mono text-gray-400 shrink-0">{event.time}</span>
+                                            </div>
+                                            <p className="text-xs text-gray-500 leading-relaxed whitespace-pre-line">{event.desc}</p>
+                                            
+                                            {/* Action Buttons based on type */}
+                                            {event.type === 'transport' && (
+                                                <button 
+                                                    onClick={() => openDirections(event.title)}
+                                                    className="mt-2 text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors flex items-center w-fit"
+                                                >
+                                                    <i className="fa-solid fa-diamond-turn-right mr-1.5"></i> 導航
+                                                </button>
+                                            )}
+                                            {(event.type === 'activity' || event.type === 'food' || event.type === 'shopping' || event.type === 'hotel') && (
+                                                <button 
+                                                    onClick={() => openMap(event.title)}
+                                                    className="mt-2 text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1.5 rounded-full transition-colors flex items-center w-fit"
+                                                >
+                                                    <i className="fa-solid fa-map-location-dot mr-1.5"></i> 地圖
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            );
+        };
+
+        // 2. 探索視圖 ExploreView (筆記功能)
+        const ExploreView = () => {
+            const { notes, addNote, deleteNote } = useNotes();
+            const [input, setInput] = useState({ title: '', content: '' });
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (!input.title) return;
+                addNote({ ...input, id: Date.now() });
+                setInput({ title: '', content: '' });
+            };
+
+            return (
+                <div className="p-4 fade-in h-full flex flex-col">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">旅行筆記</h2>
+                    
+                    <form onSubmit={handleSubmit} className="glass-card p-4 rounded-xl mb-6">
+                        <input 
+                            type="text" 
+                            placeholder="標題 (例如: 必買藥妝)" 
+                            className="w-full bg-transparent border-b border-gray-200 py-2 text-sm focus:outline-none focus:border-[#78C2C4] mb-3"
+                            value={input.title}
+                            onChange={e => setInput({...input, title: e.target.value})}
+                        />
+                        <textarea 
+                            placeholder="內容備註..." 
+                            className="w-full bg-transparent border-b border-gray-200 py-2 text-sm focus:outline-none focus:border-[#78C2C4] h-20 resize-none"
+                            value={input.content}
+                            onChange={e => setInput({...input, content: e.target.value})}
+                        ></textarea>
+                        <button type="submit" className="mt-3 w-full bg-[#78C2C4] text-white py-2 rounded-lg text-sm font-bold shadow-sm active:scale-95 transition-transform">
+                            <i className="fa-solid fa-plus mr-1"></i> 新增筆記
+                        </button>
+                    </form>
+
+                    <div className="flex-1 overflow-y-auto space-y-3 pb-20 no-scrollbar">
+                        {notes.length === 0 && (
+                            <div className="text-center text-gray-400 mt-10 text-sm">
+                                <i className="fa-regular fa-clipboard mb-2 text-2xl"></i>
+                                <p>還沒有筆記</p>
+                            </div>
+                        )}
+                        {notes.map((note, idx) => (
+                            <div key={note.id} className="glass-card p-4 rounded-xl relative group">
+                                <h3 className="font-bold text-gray-800 text-sm">{note.title}</h3>
+                                <p className="text-xs text-gray-500 mt-1 whitespace-pre-line">{note.content}</p>
+                                <button 
+                                    onClick={() => deleteNote(idx)}
+                                    className="absolute top-3 right-3 text-gray-300 hover:text-red-400 transition-colors"
+                                >
+                                    <i className="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // 3. 工具視圖 ToolsView (已更新鐵路資訊)
+        const ToolsView = () => {
+            const [activeSubTab, setActiveSubTab] = useState('rail');
+
+            return (
+                <div className="p-4 fade-in">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">實用工具</h2>
+                    
+                    <div className="flex bg-gray-200/50 p-1 rounded-lg mb-6">
+                        {['rail', 'currency', 'weather'].map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveSubTab(tab)}
+                                className={`flex-1 py-2 text-xs font-bold rounded-md transition-all ${
+                                    activeSubTab === tab ? 'bg-white shadow-sm text-[#78C2C4]' : 'text-gray-500'
+                                }`}
+                            >
+                                {tab === 'rail' && '鐵路'}
+                                {tab === 'currency' && '匯率'}
+                                {tab === 'weather' && '天氣'}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="min-h-[300px]">
+                        {activeSubTab === 'rail' && (
+                            <div className="space-y-4">
+                                {/* 關西鐵路卡 */}
+                                <div className="glass-card p-4 rounded-xl relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-[#78C2C4]"></div>
+                                    <h3 className="font-bold text-gray-800 mb-2 flex items-center">
+                                        <i className="fa-solid fa-train-tram text-[#78C2C4] mr-2"></i>
+                                        關西鐵路卡 (KRP) 3日券
+                                    </h3>
+                                    <ul className="text-sm text-gray-600 space-y-2">
+                                        <li><strong className="text-gray-700">📌 兌換地點：</strong>關西機場旅遊資訊中心(KTIC) 或指定私鐵站。</li>
+                                        <li><strong className="text-gray-700">📅 使用日期：</strong>Day 2 (02/17) ~ Day 4 (02/19)</li>
+                                        <li><strong className="text-gray-700">🛤️ 適用路段：</strong>神戶市區阪神電車、往返有馬溫泉的神戶電鐵、往大阪的阪急電車。(註：不可搭乘JR與神戶市巴士)</li>
+                                    </ul>
+                                </div>
+
+                                {/* JR 關西廣域鐵路周遊券 */}
+                                <div className="glass-card p-4 rounded-xl relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-[#A8D8B9]"></div>
+                                    <h3 className="font-bold text-gray-800 mb-2 flex items-center">
+                                        <i className="fa-solid fa-train text-[#A8D8B9] mr-2"></i>
+                                        JR 關西廣域鐵路周遊券 5日券
+                                    </h3>
+                                    <ul className="text-sm text-gray-600 space-y-2">
+                                        <li><strong className="text-gray-700">📌 兌換地點：</strong>關西機場 JR 綠色窗口，或附護照讀取器之綠色售票機。</li>
+                                        <li><strong className="text-gray-700">📅 使用日期：</strong>Day 4 (02/19) ~ Day 8 (02/23) 連續使用</li>
+                                        <li><strong className="text-gray-700">🛤️ 適用路段：</strong>大阪往返和歌山(JR特急黑潮號)、和歌山電鐵(貴志線)、和歌山往臨空城及關西機場之JR路線。</li>
+                                    </ul>
+                                </div>
+
+                                {/* IC卡 */}
+                                <div className="glass-card p-4 rounded-xl relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1.5 h-full bg-[#FEDFE1]"></div>
+                                    <h3 className="font-bold text-gray-800 mb-2 flex items-center">
+                                        <i className="fa-brands fa-apple text-[#FEDFE1] mr-2"></i>
+                                        實體 ICOCA / Apple Pay Suica
+                                    </h3>
+                                    <ul className="text-sm text-gray-600 space-y-2">
+                                        <li><strong className="text-gray-700">📌 準備方式：</strong>iPhone 錢包直接加入，或於各車站自動售票機購買/儲值。</li>
+                                        <li><strong className="text-gray-700">🛤️ 適用情境：</strong>填補周遊券無法覆蓋之路線。如 Day 1 機場高速船、大阪市營地下鐵、奈良近鐵、以及各地區市營公車。</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+
+                        {activeSubTab === 'currency' && (
+                            <div className="text-center text-gray-500 py-10">
+                                <i className="fa-solid fa-coins text-4xl mb-3 text-gray-300"></i>
+                                <p className="text-sm">可連結即時匯率 API</p>
+                                <p className="text-xs mt-2 text-gray-400">目前建議使用 xCurrency App</p>
+                            </div>
+                        )}
+
+                        {activeSubTab === 'weather' && (
+                            <div className="text-center text-gray-500 py-10">
+                                <i className="fa-solid fa-cloud-sun text-4xl mb-3 text-gray-300"></i>
+                                <p className="text-sm">2月平均氣溫：5°C ~ 10°C</p>
+                                <p className="text-xs mt-2 text-gray-400">建議穿著：洋蔥式穿搭、圍巾、大衣</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // 4. 資訊視圖 InfoView
+        const InfoView = () => {
+            return (
+                <div className="p-4 fade-in space-y-4">
+                    <h2 className="text-xl font-bold text-gray-800 mb-4">航班與住宿</h2>
+                    
+                    {/* 航班 */}
+                    <div className="glass-card p-0 rounded-xl overflow-hidden mb-6">
+                        <div className="bg-[#FEDFE1] px-4 py-2 flex justify-between items-center">
+                            <span className="text-xs font-bold text-gray-600">樂桃航空 Peach</span>
+                            <span className="text-xs font-mono text-gray-500">MM069</span>
+                        </div>
+                        <div className="p-4 flex justify-between items-center">
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-gray-800">KIX</div>
+                                <div className="text-xs text-gray-500">關西 T2</div>
+                                <div className="text-sm font-mono font-bold mt-1">23:00</div>
+                            </div>
+                            <div className="flex-1 px-4 flex flex-col items-center">
+                                <i className="fa-solid fa-plane text-gray-300 rotate-90"></i>
+                                <div className="w-full h-px bg-gray-200 my-2"></div>
+                                <span className="text-[10px] text-gray-400">約 3h</span>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-gray-800">HKG</div>
+                                <div className="text-xs text-gray-500">香港 T1</div>
+                                <div className="text-sm font-mono font-bold mt-1">02:30</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 住宿列表 */}
+                    <h3 className="text-sm font-bold text-gray-600 ml-1">住宿清單</h3>
+                    <div className="space-y-3">
+                        {[
+                            { name: "神戶美利堅公園東方大酒店", days: "Day 1-2", link: "https://hk.trip.com/account/bookings" },
+                            { name: "月光園遊月山莊 (有馬)", days: "Day 3", link: "https://hk.trip.com/account/bookings" },
+                            { name: "東急 Stay 大阪本町", days: "Day 4-6", link: "https://hk.trip.com/account/bookings" },
+                            { name: "和歌山大和 Roynet 酒店", days: "Day 7", link: "https://hk.trip.com/account/bookings" },
+                        ].map((hotel, idx) => (
+                            <div key={idx} className="glass-card p-3 rounded-lg flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                    <button 
+                                        onClick={() => openMap(hotel.name)}
+                                        className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-[#78C2C4] hover:text-white transition-colors"
+                                    >
+                                        <i className="fa-solid fa-location-dot text-xs"></i>
+                                    </button>
+                                    <div>
+                                        <a href={hotel.link} target="_blank" className="text-sm font-bold text-gray-800 hover:underline">
+                                            {hotel.name}
+                                        </a>
+                                        <div className="text-xs text-gray-400">{hotel.days}</div>
+                                    </div>
+                                </div>
+                                <i className="fa-solid fa-chevron-right text-xs text-gray-300"></i>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // 5. 底部導航 BottomNav
+        const BottomNav = ({ activeTab, setActiveTab }) => {
+            const tabs = [
+                { id: 'itinerary', icon: 'calendar-days', label: '行程' },
+                { id: 'explore', icon: 'pen-to-square', label: '筆記' },
+                { id: 'tools', icon: 'suitcase', label: '工具' },
+                { id: 'info', icon: 'circle-info', label: '資訊' },
+            ];
+
+            return (
+                <div className="fixed bottom-0 left-0 w-full bg-white/90 backdrop-blur-md border-t border-gray-200 pb-safe z-50">
+                    <div className="flex justify-around items-center h-16 max-w-md mx-auto">
+                        {tabs.map(tab => (
+                            <button 
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={`flex flex-col items-center justify-center w-full h-full transition-all duration-300 ${activeTab === tab.id ? 'text-[#78C2C4] -translate-y-1' : 'text-gray-400'}`}
+                            >
+                                <i className={`fa-solid fa-${tab.icon} text-xl mb-1`}></i>
+                                <span className="text-[10px] font-medium">{tab.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        // --- 4. 主程式 App ---
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('itinerary');
+
+            return (
+                <div className="max-w-md mx-auto min-h-screen relative pb-20">
+                    {/* 根據 Tab 切換顯示內容 */}
+                    {activeTab === 'itinerary' && <ItineraryView />}
+                    {activeTab === 'explore' && <ExploreView />}
+                    {activeTab === 'tools' && <ToolsView />}
+                    {activeTab === 'info' && <InfoView />}
+
+                    {/* 底部導航 */}
+                    <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
