@@ -161,49 +161,33 @@
             { name: "和歌山大和ROYNET酒店", engName: "Daiwa Roynet Hotel Wakayama", address: "和歌山市七番丁 26-1", checkIn: "02/22(日)", checkOut: "02/23(一)", nights: 1, roomType: "標準雙床房 (禁煙)", tag: "和歌山城旁", icon: "landmark", color: COLORS.green }
         ];
 
+        // 交通券攻略資料 (最佳方案：IC 卡)
         const PASS_INFO = [
             {
-                name: "關西鐵路卡 (KRP)",
-                type: "推薦 2日或3日券",
-                price: "¥5,600 (2日) / ¥5,900 (3日)",
-                days: "Day 2, 3, 4",
-                desc: "涵蓋神戶地鐵、神戶電鐵(往有馬)、阪急/阪神電車。解決私鐵跨城移動。",
+                name: "交通策略：IC 卡優先",
+                type: "最佳效益",
+                price: "依使用扣款",
+                days: "全行程",
+                desc: "您的行程跨越多家鐵路公司(JR/阪神/近鐵/南海)，單一票券無法回本，直接刷 IC 卡最省錢且彈性。",
                 details: [
-                    "Day 2: 神戶市區移動 (阪神)",
-                    "Day 3: 神戶 → 有馬溫泉 (最划算路段)",
-                    "Day 4: 有馬溫泉 → 大阪 (神戶電鐵轉阪急)",
-                    "注意：不含高速巴士，Day 4 建議搭電車回大阪以利用票券"
+                    "Day 7 高野山：利用天下茶屋站寄放行李，避免來回和歌山折返跑。",
+                    "Day 8 和歌山：和歌山電鐵可買一日券(¥800)留念，或直接刷卡。",
+                    "全程預估車資：約 ¥8,000"
                 ],
-                color: "bg-emerald-100 text-emerald-700",
-                icon: "ticket"
-            },
-            {
-                name: "JR 關西廣域周遊券",
-                type: "5日券",
-                price: "¥12,000",
-                days: "Day 4 - Day 8",
-                desc: "主要價值在於大阪往返和歌山(黑潮號)及機場交通。",
-                details: [
-                    "Day 7: 大阪天王寺 → 和歌山 (特急黑潮號)",
-                    "Day 8: 和歌山電鐵 (貴志川線看貓)",
-                    "Day 8: 和歌山 → 臨空城 → 關西機場",
-                    "說明：雖然大阪市區不常用，但跑一趟和歌山+機場就回本"
-                ],
-                color: "bg-blue-100 text-blue-700",
-                icon: "train"
+                color: "bg-indigo-100 text-indigo-700",
+                icon: "calculator"
             },
             {
                 name: "IC 卡 (ICOCA / Suica)",
                 type: "儲值卡",
-                price: "依使用儲值",
-                days: "全行程填補空缺",
-                desc: "必備！用於周遊券不涵蓋的短程移動。",
+                price: "¥2000 (含押金)",
+                days: "全行程必備",
+                desc: "關西地區所有私鐵、JR、地鐵、巴士皆通用。",
                 details: [
-                    "Day 1: 機場高速船 / Port Liner",
-                    "Day 4-5: 大阪市營地下鐵 (量多可買一日券)",
-                    "Day 6: 大阪往返奈良 (近鐵)",
-                    "Day 7: 高野山當地交通 (南海電鐵/巴士)",
-                    "各式當地巴士 (神戶市巴、和歌山巴士)"
+                    "Day 1-3: 神戶/有馬移動",
+                    "Day 4-6: 大阪/奈良移動",
+                    "Day 7: 南海電鐵 (高野山/和歌山)",
+                    "Day 8: 機場交通"
                 ],
                 color: "bg-gray-100 text-gray-600",
                 icon: "credit-card"
@@ -263,7 +247,7 @@
             { 
                 day: 2, date: "02/17(二)", title: "神戶文創＆浪漫夜景", weather: "10°C", weatherIcon: "sun",
                 timeline: [
-                    { type: 'transport', time: '約 35 分鐘', title: '神戶美利堅公園東方大酒店 ➔ 兵庫縣立美術館', icon: 'train-tram', ticket: '關西鐵路卡', routes: [
+                    { type: 'transport', time: '約 35 分鐘', title: '神戶美利堅公園東方大酒店 ➔ 兵庫縣立美術館', icon: 'train-tram', ticket: 'IC 卡', routes: [
                         "上車：飯店接駁巴士 → 三宮站",
                         "進站：阪神 三宮站",
                         "搭乘：阪神本線 普通 (往大阪梅田)",
@@ -271,7 +255,7 @@
                         "出口：南口 → 步行約 10 分鐘"
                     ] },
                     { type: 'activity', time: '10:00', title: '兵庫縣立美術館', icon: 'palette', detail: '安藤忠雄操刀設計，欣賞極簡清水模建築與海景，與巨大「青蘋果」合影' },
-                    { type: 'transport', time: '15 分鐘', title: '兵庫縣立美術館 ➔ 神戶舊居留地', icon: 'train-tram', ticket: '關西鐵路卡', routes: [
+                    { type: 'transport', time: '15 分鐘', title: '兵庫縣立美術館 ➔ 神戶舊居留地', icon: 'train-tram', ticket: 'IC 卡', routes: [
                         "上車：岩屋站",
                         "搭乘：阪神本線 (往神戶三宮/元町)",
                         "下車：元町站 (Motomachi)",
@@ -310,14 +294,15 @@
                 day: 3, date: "02/18(三)", title: "遊月山莊溫泉夜", weather: "7°C", weatherIcon: "cloud", 
                 timeline: [
                     { type: 'hotel', time: '10:00', title: '神戶美利堅公園東方大酒店', icon: 'bed', detail: 'Check-out' },
-                    { type: 'transport', time: '約 60 分鐘', title: '神戶三宮站 ➔ 有馬溫泉站', icon: 'train-subway', isLong: true, ticket: '關西鐵路卡', routes: [
-                        "【方案 A (地鐵+電鐵) - 適用票券】",
+                    { type: 'transport', time: '約 60 分鐘', title: '神戶三宮站 ➔ 有馬溫泉站', icon: 'train-subway', isLong: true, ticket: 'IC 卡', routes: [
+                        "【方案 A (巴士)】三宮巴士總站 (Mint Kobe 1F)",
+                        "搭乘：阪急/JR 高速巴士 (往有馬溫泉)",
+                        "下車：有馬溫泉站",
+                        "【方案 B (地下鐵)】三宮站",
                         "搭乘：神戶市營地下鐵 (往谷上)",
                         "轉乘：谷上站 (同月台) → 神戶電鐵有馬線 (往三田/有馬)",
                         "轉乘：有馬口站 → 有馬溫泉線",
-                        "下車：有馬溫泉站",
-                        "【方案 B (高速巴士) - 需另付費】",
-                        "三宮巴士總站搭乘往有馬溫泉"
+                        "下車：有馬溫泉站"
                     ] },
                     { type: 'transport', time: '11:30', title: '有馬溫泉', icon: 'map', detail: '行程：溫泉街老舖巡禮、品嚐炭酸煎餅' },
                     { type: 'transport', time: '5 分鐘', title: '有馬溫泉站 ➔ 月光園遊月山莊', icon: 'van-shuttle', routes: ["抵達巴士站/車站後，聯繫旅館接駁車或步行約 10 分鐘"] },
@@ -329,13 +314,10 @@
                 day: 4, date: "02/19(四)", title: "大阪中崎町＆天王寺", weather: "9°C", weatherIcon: "cloud-sun", 
                 timeline: [
                     { type: 'hotel', time: '11:00', title: '月光園遊月山莊', icon: 'bus', detail: 'Check-out / 離開有馬溫泉，結束溫泉之旅，前往大阪' },
-                    { type: 'transport', time: '約 90 分鐘', title: '有馬溫泉站 ➔ 大阪梅田站', icon: 'train-subway', isLong: true, ticket: '關西鐵路卡', routes: [
-                        "【方案 A (電車) - 適用票券】",
-                        "有馬溫泉(神戶電鐵) ➔ 有馬口 ➔ 谷上(轉神戶地鐵) ➔ 三宮",
-                        "轉乘：阪急神戸線 特急 (往大阪梅田)",
-                        "下車：大阪梅田站 (阪急)",
-                        "【方案 B (巴士) - 較快/需另付費】",
-                        "搭乘阪急高速巴士直達大阪梅田"
+                    { type: 'transport', time: '約 60 分鐘', title: '有馬溫泉站 ➔ 大阪梅田站', icon: 'bus', isLong: true, ticket: 'IC 卡', routes: [
+                        "上車：有馬溫泉巴士站 (太閣橋附近)",
+                        "搭乘：阪急高速巴士 (往大阪梅田)",
+                        "下車：阪急三番街巴士總站 (大阪梅田)"
                     ] },
                     { type: 'transport', time: '約 15 分鐘', title: '大阪梅田站 ➔ 本町站 (放行李)', icon: 'train-subway', ticket: 'IC 卡', routes: [
                         "進站：梅田站 (M16)",
@@ -438,46 +420,37 @@
             { 
                 day: 7, date: "02/22(日)", title: "和歌山聖地奧之院", weather: "13°C", weatherIcon: "cloud-sun", 
                 timeline: [
-                    { type: 'hotel', time: '09:30', title: '東急stay大阪本町酒店', icon: 'bed', detail: 'Check-out & 寄放行李 (將大件行李寄放大阪飯店或車站，輕裝前往)' },
-                    { type: 'transport', time: '約 90 分鐘', title: '本町站 ➔ 和歌山站', icon: 'train', isLong: true, ticket: 'JR 關西廣域', routes: [
-                        "進站：本町站 (M18)",
-                        "搭乘：大阪地下鐵 御堂筋線 (往天王寺)",
-                        "下車：天王寺站 (M23)",
-                        "轉乘：JR 天王寺站",
-                        "搭乘：JR 特急黑潮號 Kuroshio (往和歌山/白濱)",
-                        "下車：JR 和歌山站",
-                        "轉乘：公車/計程車前往和歌山城旁飯店"
+                    { type: 'hotel', time: '09:00', title: '東急stay大阪本町酒店', icon: 'bed', detail: 'Check-out & 準備行李' },
+                    { type: 'transport', time: '約 15 分鐘', title: '本町站 ➔ 天下茶屋站 (寄放行李)', icon: 'train-subway', ticket: 'IC 卡', routes: [
+                        "進站：本町站 (K15 - 堺筋線)",
+                        "搭乘：大阪地下鐵 堺筋線 (往天下茶屋)",
+                        "下車：天下茶屋站 (K20)",
+                        "動作：出閘後，於南海電鐵側尋找置物櫃寄放大型行李"
                     ] },
-                    { type: 'hotel', time: '11:00', title: '和歌山大和ROYNET酒店', icon: 'bed', detail: 'Check-in (寄放行李)' },
-                    { type: 'transport', time: '約 120 分鐘', title: '和歌山市區 ➔ 奧之院', icon: 'car', isLong: true, ticket: 'IC 卡 / 租車', routes: [
-                        "【方案 A (租車/包車 - 推薦)】",
-                        "從和歌山市區出發，約 90-120 分鐘直達奧之院口",
-                        "【方案 B (電車 - IC 卡)】",
-                        "JR 和歌山線 → 橋本站",
-                        "轉乘 南海高野線 → 極樂橋站",
-                        "轉乘 高野山纜車 → 高野山站",
-                        "轉乘 南海林間巴士 → 奧之院口"
+                    { type: 'transport', time: '約 90 分鐘', title: '天下茶屋站 ➔ 極樂橋站 (高野山)', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
+                        "進站：南海 天下茶屋站",
+                        "搭乘：南海高野線 特急 Koya 或 快速急行 (往極樂橋)",
+                        "下車：極樂橋站",
+                        "轉乘：高野山纜車 (5分鐘) ➔ 高野山站",
+                        "轉乘：南海林間巴士 ➔ 奧之院口"
                     ] },
                     { type: 'activity', time: '14:30', title: '奧之院', icon: 'torii-gate', detail: '參拜：高野山 (日本佛教聖地，漫步於千年杉木林參道，感受莊嚴肅穆的氛圍)' },
-                    { type: 'transport', time: '約 90 分鐘', title: '奧之院 ➔ 和歌山市區', icon: 'car', isLong: true, routes: [
-                        "【方案 A (自駕/包車 - 約 90 分)】",
-                        "起點：奧之院前停車場 / 中之橋",
-                        "路線：國道 371 號 / 480 號 (下山)",
-                        "連接：京奈和自動車道 (免費區間)",
-                        "方向：往和歌山 / 岩出",
-                        "終點：和歌山城周邊",
-                        "【方案 B (電車 - 約 2.5 小時)】",
-                        "上車：奧之院口巴士站",
-                        "搭乘：南海林間巴士 (往高野山站前)",
-                        "轉乘：高野山站 (纜車) → 極樂橋站",
-                        "搭乘：南海高野線 急行 (往橋本/難波)",
-                        "轉乘：橋本站 → JR 和歌山線 (往和歌山)",
-                        "下車：JR 和歌山站"
+                    { type: 'transport', time: '約 100 分鐘', title: '高野山 ➔ 天下茶屋站 (領行李)', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
+                        "上車：奧之院前巴士站",
+                        "搭乘：南海林間巴士 ➔ 高野山站",
+                        "轉乘：纜車 ➔ 極樂橋站",
+                        "搭乘：南海高野線 (往難波)",
+                        "下車：天下茶屋站",
+                        "動作：領取寄放的行李"
                     ] },
-                    { type: 'activity', time: '17:00', title: '和歌山城', icon: 'landmark', detail: '活動：外圍欣賞點燈後的和歌山城夜景' },
-                    { type: 'transport', time: '10 分鐘', title: '和歌山城 ➔ 井出商店', icon: 'bus', routes: ["步行或搭乘巴士前往"] },
-                    { type: 'food', time: '18:30', title: '井出商店', icon: 'utensils', detail: '晚餐：品嚐全日本知名的正宗和歌山拉麵 (豚骨醬油)' },
-                    { type: 'transport', time: '10 分鐘', title: '井出商店 ➔ 和歌山大和ROYNET酒店', icon: 'person-walking', routes: ["散步返回和歌山大和ROYNET酒店休息"] }
+                    { type: 'transport', time: '約 60 分鐘', title: '天下茶屋站 ➔ 和歌山市站', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
+                        "進站：南海 天下茶屋站 (無需出站，同站體轉乘)",
+                        "搭乘：南海本線 特急 Southern (往和歌山市)",
+                        "下車：和歌山市站",
+                        "轉乘：公車/計程車前往和歌山城旁飯店"
+                    ] },
+                    { type: 'hotel', time: '18:00', title: '和歌山大和ROYNET酒店', icon: 'bed', detail: 'Check-in' },
+                    { type: 'food', time: '18:30', title: '井出商店', icon: 'utensils', detail: '晚餐：步行前往品嚐全日本知名的正宗和歌山拉麵 (豚骨醬油)' }
                 ]
             },
             { 
@@ -489,13 +462,13 @@
                         "搭乘：和歌山巴士 (往 JR 和歌山站)",
                         "下車：JR 和歌山站"
                     ] },
-                    { type: 'transport', time: '約 30 分鐘', title: 'JR 和歌山站 ➔ 貴志站', icon: 'train-tram', isLong: true, ticket: 'JR 關西廣域', routes: [
+                    { type: 'transport', time: '約 30 分鐘', title: 'JR 和歌山站 ➔ 貴志站', icon: 'train-tram', isLong: true, ticket: 'IC 卡 / 1日券', routes: [
                         "進站：JR 和歌山站 (9號月台)",
                         "搭乘：和歌山電鐵 貴志川線",
                         "下車：貴志站 (終點站)"
                     ] },
                     { type: 'activity', time: '10:00', title: '貴志站', icon: 'cat', detail: '活動：探訪貓咪站長 (參觀車站與貓咪站長 二代玉/四代玉，逛車站商店)' },
-                    { type: 'transport', time: '30 分鐘', title: '貴志站 ➔ JR 和歌山站', icon: 'train-tram', isLong: true, ticket: 'JR 關西廣域', routes: [
+                    { type: 'transport', time: '30 分鐘', title: '貴志站 ➔ JR 和歌山站', icon: 'train-tram', isLong: true, ticket: 'IC 卡 / 1日券', routes: [
                         "進站：貴志站",
                         "搭乘：和歌山電鐵 貴志川線 (往和歌山)",
                         "下車：JR 和歌山站"
@@ -508,17 +481,17 @@
                     { type: 'activity', time: '13:30', title: '雜賀崎漁港', icon: 'camera', detail: '景點：有「日本阿瑪菲」之稱的浪漫復古海岸' },
                     { type: 'transport', time: '5 分鐘', title: '雜賀崎漁港 ➔ 雜賀崎', icon: 'person-walking', routes: ["沿著海岸線前往海景咖啡廳"] },
                     { type: 'cafe', time: '15:00', title: '雜賀崎', icon: 'mug-hot', detail: '海邊絕景咖啡廳 (享受旅行最後的看海放空時光)' },
-                    { type: 'transport', time: '約 60 分鐘', title: '雜賀崎 ➔ 臨空城站', icon: 'train', isLong: true, ticket: 'JR 關西廣域 (部分)', routes: [
+                    { type: 'transport', time: '約 60 分鐘', title: '雜賀崎 ➔ 臨空城站', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
                         "上車：雜賀崎遊園",
                         "搭乘：和歌山巴士 (往南海和歌山市站)",
-                        "轉乘：南海電鐵 和歌山市站 (或 JR 和歌山站)",
-                        "搭乘：JR 關西機場線 (若從 JR 和歌山出發) 或 南海本線",
+                        "轉乘：南海電鐵 和歌山市站",
+                        "搭乘：南海本線 (往難波/關西機場)",
                         "下車：臨空城站 (Rinku Town)"
                     ] },
                     { type: 'shop', time: '16:30', title: '臨空城 Outlet', icon: 'bag-shopping', detail: '最後血拼：集中掃貨各大運動品牌的跑步、網球鞋與服飾' },
-                    { type: 'transport', time: '10 分鐘', title: '臨空城站 ➔ 關西機場站', icon: 'train', ticket: 'JR 關西廣域', routes: [
+                    { type: 'transport', time: '10 分鐘', title: '臨空城站 ➔ 關西機場站', icon: 'train', ticket: 'IC 卡', routes: [
                         "進站：臨空城站",
-                        "搭乘：JR 關空快速 (往關西機場)",
+                        "搭乘：JR 或 南海電鐵 (往關西機場)",
                         "下車：關西機場站"
                     ] },
                     { type: 'activity', time: '20:30', title: '關西國際機場 第二航廈', icon: 'plane-departure', detail: '前往 T2 (樂桃航空) 辦理報到、免稅店最後採購物產與伴手禮' },
@@ -527,6 +500,7 @@
             }
         ];
 
+        // SAVED_SPOTS updated with hours, closed days and new shops
         const SAVED_SPOTS = [
             { id: 1, name: "神戸 栄町通 (Sakaemachi)", category: "Shop", icon: "pen-nib", region: "神戶", tags: ["文具", "選物"], note: "隱藏舊大樓的特色小店", day: "Day 2", address: "神戶市中央區榮町通", hours: "11:00-19:00", closed: "不定休" },
             { id: 18, name: "Sports Depo 天王寺店", category: "Shop", icon: "shirt", region: "大阪", tags: ["運動", "購物"], note: "商品齊全的運動用品專賣店", day: "Day 4", address: "大阪市阿倍野區 Q's Mall", hours: "10:00-22:00", closed: "無" },
@@ -588,9 +562,9 @@
             
             // Helper to get pass style
             const getPassStyle = (ticket) => {
-                if (ticket.includes('關西鐵路卡')) return 'bg-emerald-100 text-emerald-600 border-emerald-200';
-                if (ticket.includes('JR')) return 'bg-blue-100 text-blue-600 border-blue-200';
-                return 'bg-gray-100 text-gray-500 border-gray-200';
+                if (ticket.includes('IC 卡')) return 'bg-gray-100 text-gray-500 border-gray-200';
+                if (ticket.includes('1日券')) return 'bg-orange-100 text-orange-600 border-orange-200';
+                return 'bg-blue-100 text-blue-600 border-blue-200';
             };
 
             if (isTransport) {
@@ -921,7 +895,7 @@
                     {toolMode === 'rail' && (
                         <div className="space-y-6">
                             <div>
-                                <h3 className="text-sm font-bold text-gray-400 mb-2 pl-1">推薦鐵路券攻略</h3>
+                                <h3 className="text-sm font-bold text-gray-400 mb-2 pl-1">交通票券攻略</h3>
                                 <div className="space-y-4">
                                     {PASS_INFO.map((p, i) => (
                                         <div key={i} className="glass-card p-4 rounded-2xl border-l-4" style={{borderLeftColor: p.color.split(' ')[1].replace('text-', 'border-')}}>
