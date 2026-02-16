@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- App Title & Meta -->
     <title>Kansai2026</title>
     <meta name="apple-mobile-web-app-title" content="Kansai2026">
     <meta name="application-name" content="Kansai2026">
@@ -23,16 +24,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
-        
         body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: #F3F4F6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f8fafc;
             -webkit-tap-highlight-color: transparent;
-            overscroll-behavior-y: none;
+            padding-bottom: env(safe-area-inset-bottom);
         }
-
-        /* 隱藏 Scrollbar 但保持滑動 */
+        /* Hide scrollbar for clean UI */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -40,17 +38,14 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-
-        .glass-card {
+        .card-shadow {
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+        }
+        .glass-nav {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-
-        /* iOS Safe Area Padding */
-        .pb-safe {
-            padding-bottom: env(safe-area-inset-bottom);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0,0,0,0.05);
         }
     </style>
 </head>
@@ -60,192 +55,248 @@
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
 
-        // --- 資料設定 ---
+        // --- 資料數據 (Data) ---
 
+        // 1. 行程數據 (更新了交通建議)
         const itineraryData = [
             {
                 day: 1,
-                date: "02/16 (日)",
-                location: "大阪 → 神戶",
-                title: "抵達關西與神戶港",
-                transportBadge: "IC卡 / 船票",
+                date: "02/16 (一)",
+                title: "抵達 & 神戶港夜景",
+                location: "關西機場 → 神戶",
+                weather: "晴時多雲 8°C",
+                transport: "交通：IC 卡 / 高速船 (Bay Shuttle)",
+                highlight: "外國人搭高速船優惠 ¥500 (需查證)",
                 details: [
-                    { time: "14:00", activity: "抵達關西機場 (KIX)", note: "入境、領取行李" },
-                    { time: "15:00", activity: "移動往神戶", note: "推薦：高速船 (Bay Shuttle) 優惠價¥500，或搭乘 JR" },
-                    { time: "16:30", activity: "飯店 Check-in", note: "神戶三宮周邊" },
-                    { time: "17:30", activity: "神戶港散策", note: "美利堅公園、神戶塔" },
-                    { time: "19:00", activity: "晚餐：神戶牛/洋食", note: "Mosaic 廣場" }
-                ],
-                transportInfo: "★ 今日交通：IC卡為主。\n推薦機場高速船 (Bay Shuttle)，外國人優惠¥500 (需確認優惠期限)，CP值最高！神戶市區移動使用 IC 卡或 Port Liner。"
+                    { time: "14:00", activity: "抵達關西機場 (KIX)", icon: "plane", note: "入境、領取預訂票券" },
+                    { time: "15:30", activity: "前往神戶 (高速船/JR)", icon: "ship", note: "推薦 Bay Shuttle 直達神戶機場轉 Port Liner" },
+                    { time: "17:00", activity: "飯店 Check-in", icon: "hotel", note: "神戶三宮周邊" },
+                    { time: "18:30", activity: "神戶港塔 & 美利堅公園", icon: "camera", note: "欣賞港口夜景" },
+                    { time: "20:00", activity: "晚餐：神戶牛/洋食", icon: "utensils", note: "南京町或馬賽克廣場" }
+                ]
             },
             {
                 day: 2,
-                date: "02/17 (一)",
-                location: "神戶",
-                title: "異人館與摩耶山夜景",
-                transportBadge: "KRP 2日/3日券",
+                date: "02/17 (二)",
+                title: "神戶異人館 & 摩耶山",
+                location: "神戶市區",
+                weather: "多雲 7°C",
+                transport: "交通：關西鐵路卡 (Day 1)",
+                highlight: "注意：摩耶山纜車週二可能停駛",
                 details: [
-                    { time: "09:30", activity: "北野異人館街", note: "風見雞之館、萌黃之館" },
-                    { time: "12:00", activity: "午餐：北野異人館周邊", note: "" },
-                    { time: "14:00", activity: "生田神社", note: "戀愛結緣名所" },
-                    { time: "16:00", activity: "前往摩耶山", note: "搭乘 18 號公車" },
-                    { time: "17:30", activity: "摩耶山掬星台夜景", note: "日本三大夜景之一" },
-                    { time: "19:30", activity: "返回三宮晚餐", note: "" }
-                ],
-                transportInfo: "★ 今日交通：推薦使用「關西鐵路卡 (KRP)」。\n涵蓋阪神電車及部分市區移動。\n⚠️ 注意：摩耶山纜車冬季(2月)平日週二可能停駛或提早結束，出發前務必確認官網。若停駛，建議改往「六甲山」看夜景。"
+                    { time: "09:30", activity: "北野異人館街", icon: "coffee", note: "風見雞之館、星巴克異人館店" },
+                    { time: "12:30", activity: "午餐 & 三宮逛街", icon: "shopping-bag", note: "三宮中心街" },
+                    { time: "15:00", activity: "前往摩耶山 / 六甲山", icon: "mountain", note: "若摩耶山停駛，改去六甲山" },
+                    { time: "17:30", activity: "掬星台百萬夜景", icon: "star", note: "日本三大夜景之一 (注意保暖)" },
+                    { time: "19:30", activity: "返回市區晚餐", icon: "train", note: "使用關西鐵路卡" }
+                ]
             },
             {
                 day: 3,
-                date: "02/18 (二)",
+                date: "02/18 (三)",
+                title: "前往有馬溫泉",
                 location: "神戶 → 有馬",
-                title: "有馬溫泉放鬆之旅",
-                transportBadge: "KRP 2日/3日券",
+                weather: "晴朗 6°C",
+                transport: "交通：關西鐵路卡 (Day 2)",
+                highlight: "神戶電鐵路段全包，省錢首選",
                 details: [
-                    { time: "10:00", activity: "南京町 (中華街)", note: "早午餐、小吃" },
-                    { time: "13:00", activity: "前往有馬溫泉", note: "三宮→谷上→有馬口→有馬溫泉" },
-                    { time: "15:00", activity: "溫泉街散策", note: "金之湯、銀之湯、足湯" },
-                    { time: "18:00", activity: "溫泉旅館晚餐", note: "享受懷石料理" }
-                ],
-                transportInfo: "★ 今日交通：推薦使用「關西鐵路卡 (KRP)」。\n這段交通費(三宮往有馬)較高，KRP 完全涵蓋地鐵轉神戶電鐵路段，非常划算！"
+                    { time: "10:00", activity: "生田神社", icon: "torii-gate", note: "結緣神社" },
+                    { time: "12:00", activity: "移動往有馬溫泉", icon: "train", note: "三宮→谷上→有馬口→有馬溫泉" },
+                    { time: "14:00", activity: "溫泉街散策", icon: "walking", note: "寧寧橋、玩具博物館" },
+                    { time: "16:00", activity: "飯店 Check-in & 泡湯", icon: "hot-tub", note: "金之湯、銀之湯" }
+                ]
             },
             {
                 day: 4,
-                date: "02/19 (三)",
+                date: "02/19 (四)",
+                title: "移動回大阪 & 購物",
                 location: "有馬 → 大阪",
-                title: "返回大阪梅田",
-                transportBadge: "KRP + JR PASS (啟動)",
+                weather: "多雲時雨 9°C",
+                transport: "交通：關西鐵路卡 (Day 3) 或 JR 廣域 (D1)",
+                highlight: "建議搭電車回大阪 (KRP全包)",
                 details: [
-                    { time: "10:00", activity: "Check-out & 移動", note: "前往大阪梅田" },
-                    { time: "12:00", activity: "大阪梅田寄放行李", note: "各大百貨或車站置物櫃" },
-                    { time: "13:00", activity: "梅田商圈逛街", note: "Grand Front, LUCUA, 阪急百貨" },
-                    { time: "16:00", activity: "前往飯店 Check-in", note: "難波/心齋橋區域" },
-                    { time: "18:00", activity: "道頓堀晚餐", note: "固力果跑跑人看板" }
-                ],
-                transportInfo: "★ 今日交通：推薦使用「關西鐵路卡 (KRP)」回大阪。\n強烈建議搭乘電車 (神戶電鐵→阪急電車) 回大阪梅田，雖然需轉車，但包含在 KRP 內 (高速巴士不包)。\n今日亦為「JR 關西廣域周遊券」啟用首日 (Day 1)，雖主要移動靠 KRP，但若有搭乘 JR 環狀線可使用。"
+                    { time: "10:00", activity: "退房 & 返回大阪", icon: "train", note: "搭神戶電鐵轉阪急 (KRP包車資)" },
+                    { time: "12:00", activity: "大阪梅田/難波 Check-in", icon: "hotel", note: "寄放行李" },
+                    { time: "14:00", activity: "大阪城公園", icon: "chess-rook", note: "天守閣" },
+                    { time: "17:00", activity: "心齋橋 & 道頓堀", icon: "shopping-cart", note: "跑跑人看板、藥妝採購" },
+                    { time: "19:00", activity: "晚餐：大阪燒/章魚燒", icon: "utensils", note: "市區地鐵頻繁可買一日券" }
+                ]
             },
             {
                 day: 5,
-                date: "02/20 (四)",
-                location: "大阪",
-                title: "大阪市區經典巡禮",
-                transportBadge: "IC卡 / 地鐵一日券",
+                date: "02/20 (五)",
+                title: "大阪環球影城 / 市區",
+                location: "大阪 USJ",
+                weather: "晴朗 10°C",
+                transport: "交通：IC 卡 / 地鐵一日券",
+                highlight: "JR 廣域券 (Day 2) 亦可搭環狀線",
                 details: [
-                    { time: "09:30", activity: "大阪城公園", note: "天守閣" },
-                    { time: "12:30", activity: "黑門市場", note: "海鮮午餐" },
-                    { time: "14:30", activity: "通天閣 & 新世界", note: "炸串體驗" },
-                    { time: "17:00", activity: "阿倍野 Harukas", note: "展望台夕陽" },
-                    { time: "19:00", activity: "心齋橋購物", note: "藥妝、服飾" }
-                ],
-                transportInfo: "★ 今日交通：IC卡 或 大阪地鐵一日券。\n今日主要搭乘大阪地鐵 (御堂筋線、谷町線等)，JR PASS 不包含地鐵。若搭乘超過 4 趟，建議購買「地鐵一日券 (Enjoy Eco Card)」(平日¥820) 較划算。"
+                    { time: "08:00", activity: "環球影城 (USJ)", icon: "magic", note: "馬利歐、哈利波特園區" },
+                    { time: "18:00", activity: "CityWalk 晚餐", icon: "burger", note: "Shake Shack / 迴轉壽司" },
+                    { time: "20:00", activity: "返回市區", icon: "subway", note: "若不去USJ，可改去海遊館" }
+                ]
             },
             {
                 day: 6,
-                date: "02/21 (五)",
+                date: "02/21 (六)",
+                title: "奈良小鹿一日遊",
                 location: "大阪 ↔ 奈良",
-                title: "奈良小鹿與古寺",
-                transportBadge: "IC卡 (近鐵)",
+                weather: "多雲 9°C",
+                transport: "交通：IC 卡 (近鐵)",
+                highlight: "JR 廣域券不含近鐵，刷 IC 卡方便",
                 details: [
-                    { time: "09:00", activity: "移動往奈良", note: "搭乘近鐵奈良線 (快速急行)" },
-                    { time: "10:00", activity: "奈良公園", note: "餵食小鹿 (小心咬人)" },
-                    { time: "11:30", activity: "東大寺", note: "大佛殿" },
-                    { time: "13:00", activity: "春日大社", note: "參道散步" },
-                    { time: "15:00", activity: "東向商店街", note: "麻糬、柿葉壽司" },
-                    { time: "17:00", activity: "返回大阪", note: "" }
-                ],
-                transportInfo: "★ 今日交通：建議直接刷 IC 卡。\n推薦搭乘「近鐵」往返奈良，車站離景點較近。近鐵不包含在 JR PASS 內。JR PASS 雖可用於搭 JR 大和路線，但 JR 奈良站離公園較遠，故推薦刷 IC 卡搭近鐵。"
+                    { time: "09:00", activity: "搭近鐵前往奈良", icon: "train", note: "近鐵奈良站下車較近" },
+                    { time: "10:30", activity: "奈良公園 & 餵鹿", icon: "leaf", note: "小心鹿餅被搶" },
+                    { time: "12:00", activity: "東大寺 & 春日大社", icon: "gopuram", note: "世界遺產巡禮" },
+                    { time: "15:00", activity: "中谷堂搗麻糬", icon: "cookie", note: "商店街吃點心" },
+                    { time: "17:00", activity: "返回大阪", icon: "subway", note: "晚上可去通天閣" }
+                ]
             },
             {
                 day: 7,
-                date: "02/22 (六)",
+                date: "02/22 (日)",
+                title: "和歌山 & 高野山",
                 location: "大阪 → 和歌山",
-                title: "黑潮號往和歌山",
-                transportBadge: "JR PASS Day 4",
+                weather: "晴時多雲 8°C",
+                transport: "交通：JR 廣域券 (Day 4)",
+                highlight: "搭黑潮號去和歌山！",
                 details: [
-                    { time: "09:00", activity: "移動往和歌山", note: "天王寺搭 JR 特急黑潮號 (Kuroshio)" },
-                    { time: "10:30", activity: "和歌山城", note: "登天守閣、紅葉溪庭園" },
-                    { time: "13:00", activity: "井出商店", note: "和歌山拉麵名店" },
-                    { time: "15:00", activity: "紀三井寺 或 雜賀崎", note: "視體力安排" },
-                    { time: "18:00", activity: "和歌山晚餐", note: "" }
-                ],
-                transportInfo: "★ 今日交通：使用「JR 關西廣域周遊券」。\n這張票券的重頭戲！從天王寺搭乘「特急黑潮號」直達和歌山，舒適快速。市區巴士則需刷 IC 卡或投現。"
+                    { time: "08:30", activity: "搭黑潮號 (Kuroshio)", icon: "train", note: "天王寺→和歌山 (JR Pass)" },
+                    { time: "10:00", activity: "前往高野山 / 或是和歌山市區", icon: "mountain", note: "JR到橋本，轉南海高野線(需自費)" },
+                    { time: "13:00", activity: "奧之院 / 金剛峯寺", icon: "place-of-worship", note: "神聖莊嚴的靈場" },
+                    { time: "18:00", activity: "返回和歌山市區", icon: "hotel", note: "宿和歌山" }
+                ]
             },
             {
                 day: 8,
-                date: "02/23 (日)",
+                date: "02/23 (一)",
+                title: "貓站長 & 臨空城 Outlet",
                 location: "和歌山 → 機場",
-                title: "貓咪站長與回程",
-                transportBadge: "JR PASS Day 5",
+                weather: "晴朗 9°C",
+                transport: "交通：JR 廣域券 (Day 5)",
+                highlight: "貴志川線 & 機場快線全包",
                 details: [
-                    { time: "09:30", activity: "和歌山電鐵", note: "貴志川線看貓咪站長 (PASS包含!)" },
-                    { time: "11:30", activity: "黑潮市場", note: "鮪魚解體秀 (留意時間)" },
-                    { time: "14:00", activity: "臨空城 Outlet", note: "最後購物衝刺" },
-                    { time: "17:00", activity: "前往關西機場", note: "搭乘 JR" },
-                    { time: "19:00", activity: "辦理登機", note: "回甜蜜的家" }
-                ],
-                transportInfo: "★ 今日交通：使用「JR 關西廣域周遊券」。\n亮點：和歌山電鐵(貴志站)完全包含在 PASS 內！前往臨空城及機場的 JR 路線也包含。一張 PASS 用好用滿。"
+                    { time: "09:00", activity: "和歌山電鐵", icon: "cat", note: "去看小玉/二代玉站長 (JR Pass包)" },
+                    { time: "11:00", activity: "和歌山城 / 雜賀崎", icon: "chess-rook", note: "義大利風漁港 (搭巴士刷IC)" },
+                    { time: "14:00", activity: "臨空城 Outlet", icon: "shopping-bag", note: "最後衝刺，離機場僅一站" },
+                    { time: "17:00", activity: "前往關西機場", icon: "plane", note: "搭 JR 直達機場" },
+                    { time: "19:00", activity: "搭機返程", icon: "passport", note: "平安回家" }
+                ]
             }
         ];
 
-        // --- 元件：ItineraryView ---
-        const ItineraryView = () => {
-            const [expandedDay, setExpandedDay] = useState(null);
+        // 2. 鐵路票券數據 (更新為使用者提供的核心推薦組合)
+        const passData = [
+            {
+                id: 1,
+                title: "關西鐵路卡 (Kansai Railway Pass)",
+                type: "推薦 2日或3日券",
+                price: "¥5,600 (2日) / ¥5,900 (3日)",
+                dates: "Day 2, 3, 4",
+                icon: "ticket",
+                color: "bg-pink-500",
+                desc: "涵蓋神戶地鐵、神戶電鐵(往有馬)、阪急/阪神電車。解決私鐵跨城移動。",
+                details: [
+                    "Day 2: 神戶市區移動 (阪神)",
+                    "Day 3: 神戶 → 有馬溫泉 (最划算路段)",
+                    "Day 4: 有馬溫泉 → 大阪 (神戶電鐵轉阪急)",
+                    "注意：不含高速巴士，Day 4 建議搭電車回大阪以利用票券。"
+                ]
+            },
+            {
+                id: 2,
+                title: "JR 關西廣域鐵路周遊券",
+                type: "5日券",
+                price: "¥12,000",
+                dates: "Day 4 - Day 8",
+                icon: "train",
+                color: "bg-blue-600",
+                desc: "主要價值在於大阪往返和歌山(黑潮號)及機場交通。",
+                details: [
+                    "Day 7: 大阪天王寺 → 和歌山 (特急黑潮號)",
+                    "Day 8: 和歌山電鐵 (貴志川線看貓)",
+                    "Day 8: 和歌山 → 臨空城 → 關西機場",
+                    "說明：雖然大阪市區不常用，但跑一趟和歌山+機場就回本。"
+                ]
+            },
+            {
+                id: 3,
+                title: "IC 卡 (ICOCA / Suica)",
+                type: "儲值卡",
+                price: "依使用儲值",
+                dates: "全行程填補空缺",
+                icon: "credit-card",
+                color: "bg-green-500",
+                desc: "必備！用於周遊券不涵蓋的短程移動。",
+                details: [
+                    "Day 1: 機場高速船 / Port Liner",
+                    "Day 4-5: 大阪市營地下鐵 (量多可買一日券)",
+                    "Day 6: 大阪往返奈良 (近鐵)",
+                    "Day 7: 高野山當地交通 (南海電鐵/巴士)",
+                    "各式當地巴士 (神戶市巴、和歌山巴士)"
+                ]
+            }
+        ];
 
-            const toggleDay = (day) => {
-                setExpandedDay(expandedDay === day ? null : day);
-            };
+        // --- 組件 Components ---
+
+        // 1. 行程視圖 ItineraryView
+        const ItineraryView = () => {
+            const [expandedDay, setExpandedDay] = useState(1);
 
             return (
-                <div className="p-4 pb-24 animate-fade-in">
-                    <h1 className="text-2xl font-bold mb-2 text-gray-800">行程總覽</h1>
-                    <p className="text-sm text-gray-500 mb-6">點擊卡片查看每日詳細行程與交通</p>
-                    
-                    <div className="space-y-4">
+                <div className="w-full pb-24 animate-fade-in">
+                    {/* Header */}
+                    <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4">
+                        <h1 className="text-2xl font-bold text-gray-800">關西八日遊</h1>
+                        <p className="text-sm text-gray-500 mt-1">2026.02.16 - 02.23</p>
+                    </header>
+
+                    {/* Timeline List */}
+                    <div className="px-4 py-6 space-y-4">
                         {itineraryData.map((item) => (
-                            <div key={item.day} 
-                                className={`glass-card rounded-xl overflow-hidden transition-all duration-300 ${expandedDay === item.day ? 'ring-2 ring-blue-300' : ''}`}
-                                onClick={() => toggleDay(item.day)}
-                            >
-                                <div className="p-4 flex items-center justify-between cursor-pointer active:bg-gray-50">
-                                    <div className="flex items-center space-x-4">
-                                        <div className="bg-[#78C2C4] text-white w-12 h-12 rounded-lg flex flex-col items-center justify-center shadow-sm">
-                                            <span className="text-xs font-medium">Day</span>
-                                            <span className="text-xl font-bold leading-none">{item.day}</span>
+                            <div key={item.day} className={`bg-white rounded-2xl p-5 card-shadow transition-all duration-300 ${expandedDay === item.day ? 'ring-2 ring-[#78C2C4]' : ''}`}
+                                 onClick={() => setExpandedDay(expandedDay === item.day ? null : item.day)}>
+                                
+                                {/* Card Header */}
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center space-x-3">
+                                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md ${expandedDay === item.day ? 'bg-[#78C2C4]' : 'bg-gray-300'}`}>
+                                            {item.day}
                                         </div>
                                         <div>
-                                            <div className="flex items-center space-x-2">
-                                                <h3 className="font-bold text-gray-800">{item.location}</h3>
-                                                <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-500 rounded-full">{item.date}</span>
-                                            </div>
-                                            <p className="text-sm text-gray-600 mt-0.5">{item.title}</p>
+                                            <h3 className="font-bold text-gray-800 text-lg">{item.title}</h3>
+                                            <p className="text-xs text-gray-500">{item.date} • {item.location}</p>
                                         </div>
                                     </div>
-                                    <i className={`fas fa-chevron-down text-gray-400 transition-transform duration-300 ${expandedDay === item.day ? 'rotate-180' : ''}`}></i>
+                                    <div className="text-right">
+                                        <div className="text-xs font-medium text-blue-500 bg-blue-50 px-2 py-1 rounded-full mb-1">
+                                            {item.weather}
+                                        </div>
+                                    </div>
                                 </div>
 
+                                {/* Expanded Details */}
                                 {expandedDay === item.day && (
-                                    <div className="border-t border-gray-100 bg-white/50 p-4">
-                                        {/* 交通建議區塊 */}
-                                        <div className="mb-4 bg-blue-50 p-3 rounded-lg border border-blue-100">
-                                            <div className="flex items-start">
-                                                <i className="fas fa-train text-blue-500 mt-1 mr-2"></i>
-                                                <div>
-                                                    <h4 className="text-sm font-bold text-blue-800 mb-1">交通攻略 ({item.transportBadge})</h4>
-                                                    <p className="text-xs text-blue-700 whitespace-pre-line leading-relaxed">{item.transportInfo}</p>
-                                                </div>
-                                            </div>
+                                    <div className="mt-5 border-t border-gray-100 pt-4 animate-slide-down">
+                                        {/* Transport & Highlight Box */}
+                                        <div className="bg-gray-50 rounded-xl p-3 mb-4 text-sm">
+                                            <p className="text-gray-700 font-medium mb-1"><i className="fas fa-train text-gray-400 mr-2"></i>{item.transport}</p>
+                                            <p className="text-amber-600 font-medium"><i className="fas fa-lightbulb text-amber-400 mr-2"></i>{item.highlight}</p>
                                         </div>
 
-                                        {/* 時間軸 */}
-                                        <div className="relative pl-4 border-l-2 border-gray-200 space-y-6 my-2">
+                                        {/* Timeline Points */}
+                                        <div className="relative pl-4 border-l-2 border-gray-200 ml-2 space-y-6">
                                             {item.details.map((detail, idx) => (
                                                 <div key={idx} className="relative">
-                                                    <div className="absolute -left-[21px] top-1 w-3 h-3 bg-[#78C2C4] rounded-full border-2 border-white shadow-sm"></div>
-                                                    <div className="flex flex-col sm:flex-row sm:items-baseline">
-                                                        <span className="text-sm font-bold text-gray-500 w-12 shrink-0">{detail.time}</span>
+                                                    <div className="absolute -left-[21px] top-1 w-3 h-3 bg-white border-2 border-[#78C2C4] rounded-full"></div>
+                                                    <div className="flex items-start justify-between">
                                                         <div>
-                                                            <h4 className="text-sm font-bold text-gray-800">{detail.activity}</h4>
-                                                            {detail.note && <p className="text-xs text-gray-500 mt-0.5">{detail.note}</p>}
+                                                            <span className="text-xs font-bold text-[#78C2C4] block mb-0.5">{detail.time}</span>
+                                                            <span className="text-gray-800 font-medium">{detail.activity}</span>
+                                                            <p className="text-xs text-gray-400 mt-0.5">{detail.note}</p>
                                                         </div>
+                                                        <i className={`fas fa-${detail.icon} text-gray-300 text-sm mt-1`}></i>
                                                     </div>
                                                 </div>
                                             ))}
@@ -259,193 +310,160 @@
             );
         };
 
-        // --- 元件：ExploreView (簡化版) ---
+        // 2. 探索視圖 ExploreView (保持不變，示意)
         const ExploreView = () => {
             const categories = [
-                { id: 'food', name: '必吃美食', icon: 'utensils', color: 'bg-orange-100 text-orange-600' },
-                { id: 'spot', name: '熱門景點', icon: 'camera', color: 'bg-blue-100 text-blue-600' },
-                { id: 'shop', name: '購物清單', icon: 'bag-shopping', color: 'bg-pink-100 text-pink-600' },
-                { id: 'stay', name: '住宿資訊', icon: 'bed', color: 'bg-purple-100 text-purple-600' },
+                { id: 'food', name: '美食', icon: 'utensils', color: 'bg-orange-100 text-orange-600' },
+                { id: 'shopping', name: '購物', icon: 'bag-shopping', color: 'bg-pink-100 text-pink-600' },
+                { id: 'spot', name: '景點', icon: 'map-location-dot', color: 'bg-green-100 text-green-600' },
+                { id: 'hotel', name: '住宿', icon: 'bed', color: 'bg-blue-100 text-blue-600' }
             ];
 
             return (
-                <div className="p-4 pb-24 animate-fade-in">
-                    <h1 className="text-2xl font-bold mb-4 text-gray-800">探索關西</h1>
-                    <div className="grid grid-cols-2 gap-4">
+                <div className="w-full pb-24 p-6 animate-fade-in">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">探索關西</h2>
+                    
+                    <div className="grid grid-cols-2 gap-4 mb-8">
                         {categories.map(cat => (
-                            <button key={cat.id} className="glass-card p-4 rounded-xl flex flex-col items-center justify-center aspect-square active:scale-95 transition-transform">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${cat.color}`}>
-                                    <i className={`fas fa-${cat.icon} text-xl`}></i>
-                                </div>
-                                <span className="font-medium text-gray-700">{cat.name}</span>
+                            <button key={cat.id} className={`${cat.color} p-4 rounded-2xl flex flex-col items-center justify-center h-24 shadow-sm active:scale-95 transition-transform`}>
+                                <i className={`fas fa-${cat.icon} text-2xl mb-2`}></i>
+                                <span className="font-bold">{cat.name}</span>
                             </button>
                         ))}
                     </div>
+
+                    <h3 className="font-bold text-gray-700 mb-3">熱門標籤</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {['#神戶牛', '#環球影城', '#小玉站長', '#有馬溫泉', '#奈良小鹿', '#黑潮號'].map(tag => (
+                            <span key={tag} className="bg-white border border-gray-200 px-3 py-1.5 rounded-full text-sm text-gray-600">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
                     
-                    <div className="mt-6">
-                        <h2 className="text-lg font-bold mb-3 text-gray-800">精選推薦</h2>
-                        <div className="glass-card p-4 rounded-xl mb-4">
-                            <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Kyoto" className="w-full h-32 object-cover rounded-lg mb-3" />
-                            <h3 className="font-bold text-gray-800">清水寺周邊一日遊</h3>
-                            <p className="text-xs text-gray-500 mt-1">如果你有多餘的時間，這裡是絕對不能錯過的經典路線。</p>
-                        </div>
+                    <div className="mt-8 bg-gradient-to-r from-[#78C2C4] to-[#5FA0A2] rounded-2xl p-6 text-white text-center shadow-lg">
+                        <i className="fas fa-star text-3xl mb-3 block"></i>
+                        <p className="font-bold text-lg">Wish List</p>
+                        <p className="text-sm opacity-90 mt-1">目前沒有收藏的項目</p>
                     </div>
                 </div>
             );
         };
 
-        // --- 元件：ToolsView (已更新) ---
+        // 3. 工具視圖 ToolsView (更新鐵路部分)
         const ToolsView = () => {
+            const [activeTool, setActiveTool] = useState('railway');
+
+            const renderContent = () => {
+                switch(activeTool) {
+                    case 'railway':
+                        return (
+                            <div className="space-y-4 animate-fade-in">
+                                {passData.map(pass => (
+                                    <div key={pass.id} className="bg-white rounded-xl p-5 card-shadow border-l-4 border-transparent hover:border-[#78C2C4] transition-all">
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-10 h-10 rounded-full ${pass.color} flex items-center justify-center text-white`}>
+                                                    <i className={`fas fa-${pass.icon}`}></i>
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-gray-800 leading-tight">{pass.title}</h3>
+                                                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded mt-1 inline-block">{pass.type}</span>
+                                                </div>
+                                            </div>
+                                            <span className="text-sm font-bold text-[#78C2C4]">{pass.price}</span>
+                                        </div>
+                                        
+                                        <div className="text-sm text-gray-600 space-y-2 mb-3 bg-gray-50 p-3 rounded-lg">
+                                            <p><i className="far fa-calendar-check mr-2 text-gray-400"></i><strong>日期：</strong>{pass.dates}</p>
+                                            <p><i className="fas fa-route mr-2 text-gray-400"></i><strong>說明：</strong>{pass.desc}</p>
+                                        </div>
+
+                                        <div className="pl-2 border-l-2 border-gray-200">
+                                            {pass.details.map((detail, idx) => (
+                                                <p key={idx} className="text-xs text-gray-500 mb-1 last:mb-0">• {detail}</p>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        );
+                    case 'exchange':
+                        return (
+                            <div className="bg-white rounded-2xl p-8 text-center card-shadow animate-fade-in">
+                                <p className="text-gray-400 mb-4">簡易匯率計算 (示意)</p>
+                                <div className="text-4xl font-bold text-gray-800 mb-2">JPY 1,000</div>
+                                <div className="text-2xl font-medium text-[#78C2C4]">≈ TWD 215</div>
+                            </div>
+                        );
+                    default:
+                        return <div className="text-center text-gray-400 mt-10">開發中...</div>;
+                }
+            };
+
             return (
-                <div className="p-4 pb-24 animate-fade-in">
-                    <h1 className="text-2xl font-bold mb-6 text-gray-800">旅遊工具箱</h1>
+                <div className="w-full pb-24 p-6">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">旅行工具</h2>
                     
-                    {/* 鐵路周遊券攻略 */}
-                    <div className="mb-6">
-                        <h2 className="text-lg font-bold mb-3 text-gray-800 flex items-center">
-                            <i className="fas fa-ticket-alt text-[#78C2C4] mr-2"></i>
-                            核心推薦票券組合
-                        </h2>
-                        
-                        <div className="space-y-4">
-                            {/* KRP 卡 */}
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="bg-[#eeb111] px-4 py-2 flex justify-between items-center">
-                                    <h3 className="font-bold text-white text-sm">關西鐵路卡 (KRP)</h3>
-                                    <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded">2日/3日券</span>
-                                </div>
-                                <div className="p-4">
-                                    <div className="flex justify-between items-baseline mb-2">
-                                        <span className="text-xs text-gray-500">建議售價</span>
-                                        <span className="font-bold text-gray-800">¥5,600 / ¥5,900</span>
-                                    </div>
-                                    <div className="flex justify-between items-baseline mb-2">
-                                        <span className="text-xs text-gray-500">推薦使用</span>
-                                        <span className="text-sm text-gray-800 font-medium">Day 2, 3, 4</span>
-                                    </div>
-                                    <hr className="my-2 border-gray-100"/>
-                                    <ul className="text-xs text-gray-600 space-y-1.5 list-disc pl-4">
-                                        <li><strong className="text-gray-800">Day 2 神戶市區：</strong>涵蓋阪神電車移動。</li>
-                                        <li><strong className="text-gray-800">Day 3 有馬溫泉：</strong>包含地鐵轉神戶電鐵的高額車資。</li>
-                                        <li><strong className="text-gray-800">Day 4 回大阪：</strong>強烈建議搭乘神戶電鐵+阪急電車，完美利用票券價值 (高速巴士不適用)。</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            {/* JR Kansai Wide Area Pass */}
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="bg-[#0072bc] px-4 py-2 flex justify-between items-center">
-                                    <h3 className="font-bold text-white text-sm">JR 關西廣域周遊券</h3>
-                                    <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded">5日券</span>
-                                </div>
-                                <div className="p-4">
-                                    <div className="flex justify-between items-baseline mb-2">
-                                        <span className="text-xs text-gray-500">建議售價</span>
-                                        <span className="font-bold text-gray-800">¥12,000</span>
-                                    </div>
-                                    <div className="flex justify-between items-baseline mb-2">
-                                        <span className="text-xs text-gray-500">推薦使用</span>
-                                        <span className="text-sm text-gray-800 font-medium">Day 4 - Day 8</span>
-                                    </div>
-                                    <hr className="my-2 border-gray-100"/>
-                                    <ul className="text-xs text-gray-600 space-y-1.5 list-disc pl-4">
-                                        <li><strong className="text-gray-800">Day 7 和歌山：</strong>搭乘特急黑潮號 (Kuroshio) 直達，省時舒適。</li>
-                                        <li><strong className="text-gray-800">Day 8 貓咪列車 & 機場：</strong>包含和歌山電鐵及回關西機場的 JR 費用。</li>
-                                        <li><strong className="text-gray-800">超值：</strong>光是一趟黑潮號+和歌山電鐵+機場快線就回本！</li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            {/* IC Card / Others */}
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="bg-[#4fb846] px-4 py-2 flex justify-between items-center">
-                                    <h3 className="font-bold text-white text-sm">ICOCA / Suica + 其他</h3>
-                                    <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded">必備</span>
-                                </div>
-                                <div className="p-4">
-                                    <p className="text-xs text-gray-600 mb-2 leading-relaxed">
-                                        用於填補上述兩張周遊券的空缺，隨刷隨走最方便。
-                                    </p>
-                                    <ul className="text-xs text-gray-600 space-y-1.5 list-disc pl-4">
-                                        <li><strong className="text-gray-800">Day 1：</strong>機場高速船、Port Liner。</li>
-                                        <li><strong className="text-gray-800">Day 5 大阪地鐵：</strong>若單日搭乘 >4 趟，改買「地鐵一日券 (¥820)」更省。</li>
-                                        <li><strong className="text-gray-800">Day 6 奈良：</strong>搭乘「近鐵」最方便，直接刷 IC 卡。</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                    {/* Tool Tabs */}
+                    <div className="flex bg-gray-200 p-1 rounded-xl mb-6 overflow-x-auto no-scrollbar">
+                        {['railway', 'exchange', 'weather'].map(tab => (
+                            <button 
+                                key={tab}
+                                onClick={() => setActiveTool(tab)}
+                                className={`flex-1 py-2 px-4 rounded-lg text-sm font-bold transition-all whitespace-nowrap ${activeTool === tab ? 'bg-white text-[#78C2C4] shadow-sm' : 'text-gray-500'}`}
+                            >
+                                {tab === 'railway' ? '鐵路周遊券' : tab === 'exchange' ? '匯率' : '天氣'}
+                            </button>
+                        ))}
                     </div>
 
-                    {/* 常用連結 */}
-                    <div>
-                        <h2 className="text-lg font-bold mb-3 text-gray-800">實用連結</h2>
-                        <div className="grid grid-cols-2 gap-3">
-                            <a href="https://www.google.com/maps" target="_blank" className="glass-card p-3 rounded-lg flex items-center justify-center space-x-2 text-gray-700">
-                                <i className="fab fa-google text-red-500"></i>
-                                <span className="text-sm font-medium">Google Maps</span>
-                            </a>
-                            <a href="https://jorudan.co.jp/" target="_blank" className="glass-card p-3 rounded-lg flex items-center justify-center space-x-2 text-gray-700">
-                                <i className="fas fa-train text-green-600"></i>
-                                <span className="text-sm font-medium">乘換案內</span>
-                            </a>
-                            <a href="https://www.westjr.co.jp/global/tc/" target="_blank" className="glass-card p-3 rounded-lg flex items-center justify-center space-x-2 text-gray-700">
-                                <i className="fas fa-subway text-blue-600"></i>
-                                <span className="text-sm font-medium">JR 西日本</span>
-                            </a>
-                            <a href="https://kobe-rope.co.jp/" target="_blank" className="glass-card p-3 rounded-lg flex items-center justify-center space-x-2 text-gray-700">
-                                <i className="fas fa-mountain text-purple-600"></i>
-                                <span className="text-sm font-medium">摩耶山運行</span>
-                            </a>
-                        </div>
-                    </div>
+                    {renderContent()}
                 </div>
             );
         };
 
-        // --- 元件：InfoView (簡單呈現) ---
+        // 4. 資訊視圖 InfoView (保持不變)
         const InfoView = () => {
-             const checklists = [
-                { item: "護照 (效期6個月以上)", checked: true },
-                { item: "VJW 登錄 (入境審查)", checked: true },
-                { item: "網卡 / Roaming 開通", checked: false },
-                { item: "日幣現金 (小額為主)", checked: false },
-                { item: "行動電源 & 充電線", checked: true },
-                { item: "個人藥品", checked: false },
-            ];
-            
             return (
-                 <div className="p-4 pb-24 animate-fade-in">
-                    <h1 className="text-2xl font-bold mb-4 text-gray-800">行前準備</h1>
-                    <div className="glass-card p-4 rounded-xl">
-                        <h2 className="font-bold text-gray-800 mb-3">檢查清單</h2>
-                        <div className="space-y-3">
-                            {checklists.map((item, idx) => (
-                                <div key={idx} className="flex items-center space-x-3">
-                                    <div className={`w-5 h-5 rounded border flex items-center justify-center ${item.checked ? 'bg-[#78C2C4] border-[#78C2C4]' : 'border-gray-300'}`}>
-                                        {item.checked && <i className="fas fa-check text-white text-xs"></i>}
-                                    </div>
-                                    <span className={`${item.checked ? 'text-gray-400 line-through' : 'text-gray-700'}`}>{item.item}</span>
-                                </div>
-                            ))}
+                <div className="w-full pb-24 p-6 animate-fade-in">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">實用資訊</h2>
+                    <div className="bg-white rounded-2xl overflow-hidden card-shadow mb-6">
+                        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                            <span className="font-bold text-gray-700">緊急聯絡 (日本)</span>
+                            <span className="text-red-500 font-bold">110 / 119</span>
+                        </div>
+                        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                            <span className="font-bold text-gray-700">駐日代表處</span>
+                            <span className="text-blue-500 text-sm">03-3280-7811</span>
+                        </div>
+                    </div>
+                    
+                    <div className="bg-[#2D3748] rounded-2xl p-6 text-white text-center">
+                        <p className="font-bold text-lg mb-2">航班資訊</p>
+                        <div className="flex justify-between items-center text-sm opacity-80">
+                            <span>TPE</span>
+                            <i className="fas fa-plane"></i>
+                            <span>KIX</span>
                         </div>
                     </div>
                 </div>
             );
         };
 
-        // --- 元件：底部導航 ---
+        // --- 底部導航 BottomNav ---
         const BottomNav = ({ activeTab, setActiveTab }) => {
             const tabs = [
-                { id: 'itinerary', label: '行程', icon: 'calendar-days' },
-                { id: 'explore', label: '探索', icon: 'compass' },
-                { id: 'tools', label: '工具', icon: 'toolbox' },
-                { id: 'info', label: '資訊', icon: 'circle-info' },
+                { id: 'itinerary', icon: 'list-ul', label: '行程' },
+                { id: 'explore', icon: 'compass', label: '探索' },
+                { id: 'tools', icon: 'toolbox', label: '工具' },
+                { id: 'info', icon: 'circle-info', label: '資訊' },
             ];
 
             return (
-                <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 pb-safe z-50">
-                    <div className="flex justify-around items-center h-16 max-w-md mx-auto">
-                        {tabs.map((tab) => (
+                <div className="fixed bottom-0 left-0 right-0 glass-nav h-[80px] pb-[20px] px-6 z-50">
+                    <div className="flex justify-between items-center h-full max-w-md mx-auto">
+                        {tabs.map(tab => (
                             <button 
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
@@ -460,12 +478,12 @@
             );
         };
 
-        // --- 4. 主程式 App ---
+        // --- 主程式 App ---
         const App = () => {
             const [activeTab, setActiveTab] = useState('itinerary');
 
             return (
-                <div className="max-w-md mx-auto min-h-screen relative pb-safe">
+                <div className="max-w-md mx-auto min-h-screen relative pb-20">
                     {/* 根據 Tab 切換顯示內容 */}
                     {activeTab === 'itinerary' && <ItineraryView />}
                     {activeTab === 'explore' && <ExploreView />}
@@ -481,5 +499,23 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
+    
+    <!-- Animation Styles -->
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        .animate-slide-down {
+            animation: slideDown 0.3s ease-out;
+        }
+    </style>
 </body>
 </html>
