@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- 確保加入主畫面時顯示的名字為 Kansai2026 -->
     <title>Kansai2026</title>
     <meta name="apple-mobile-web-app-title" content="Kansai2026">
     <meta name="application-name" content="Kansai2026">
@@ -52,16 +53,16 @@
 
         /* 卡片透明度 */
         .glass-card {
-            background: rgba(255, 255, 255, 0.45);
+            background: rgba(255, 255, 255, 0.55); /* 稍微增加不透明度以提升閱讀性 */
             backdrop-filter: saturate(180%) blur(20px);
             -webkit-backdrop-filter: saturate(180%) blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.6);
             box-shadow: 0 8px 32px rgba(120, 194, 196, 0.15); 
         }
         
-        /* 導覽列透明度 */
+        /* 導覽列透明度與安全區域設定 */
         .glass-nav {
-            background: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.85); /* 導航列更不透明一點 */
             backdrop-filter: saturate(200%) blur(24px);
             -webkit-backdrop-filter: saturate(200%) blur(24px);
             border-top: 1px solid rgba(255, 255, 255, 0.7);
@@ -115,9 +116,13 @@
             overflow: hidden;
         }
         
-        /* iPhone Safe Area */
-        .pb-safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+        /* iPhone Safe Area 變數 */
+        :root {
+            --sat: env(safe-area-inset-top);
+            --sab: env(safe-area-inset-bottom);
+        }
+        .pt-safe-top { padding-top: max(16px, var(--sat)); } /* 確保至少有 padding */
+        .pb-safe-bottom { padding-bottom: var(--sab); }
         
         /* 動畫 */
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
@@ -161,18 +166,18 @@
             { name: "和歌山大和ROYNET酒店", engName: "Daiwa Roynet Hotel Wakayama", address: "和歌山市七番丁 26-1", checkIn: "02/22(日)", checkOut: "02/23(一)", nights: 1, roomType: "標準雙床房 (禁煙)", tag: "和歌山城旁", icon: "landmark", color: COLORS.green }
         ];
 
-        // 交通券攻略資料 (最佳方案：IC 卡)
+        // 交通券攻略資料
         const PASS_INFO = [
             {
-                name: "交通策略：IC 卡優先",
-                type: "最佳效益",
-                price: "依使用扣款",
+                name: "交通支付策略 (最佳方案)",
+                type: "分析結果",
+                price: "最省錢",
                 days: "全行程",
-                desc: "您的行程跨越多家鐵路公司(JR/阪神/近鐵/南海)，單一票券無法回本，直接刷 IC 卡最省錢且彈性。",
+                desc: "經過計算，您的行程跨越多家不同鐵路公司，單一票券無法回本，直接刷 IC 卡最省錢。",
                 details: [
-                    "Day 7 高野山：利用天下茶屋站寄放行李，避免來回和歌山折返跑。",
-                    "Day 8 和歌山：和歌山電鐵可買一日券(¥800)留念，或直接刷卡。",
-                    "全程預估車資：約 ¥8,000"
+                    "結論：全程使用 IC 卡 (ICOCA) 即可。",
+                    "優點：彈性最高，不用擔心票券適用範圍。",
+                    "Day 7 高野山：利用天下茶屋站寄放行李，大幅節省折返時間。"
                 ],
                 color: "bg-indigo-100 text-indigo-700",
                 icon: "calculator"
@@ -182,7 +187,7 @@
                 type: "儲值卡",
                 price: "¥2000 (含押金)",
                 days: "全行程必備",
-                desc: "關西地區所有私鐵、JR、地鐵、巴士皆通用。",
+                desc: "關西地區所有私鐵、JR、地鐵、巴士及便利商店。",
                 details: [
                     "Day 1-3: 神戶/有馬移動",
                     "Day 4-6: 大阪/奈良移動",
@@ -222,9 +227,9 @@
                 timeline: [
                     { type: 'activity', time: '17:10', title: '關西機場 T2', icon: 'plane', detail: '準備前往神戶市區' },
                     { type: 'transport', time: '約 70 分鐘', title: '關西機場 ➔ 神戶三宮站', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
-                        "【方案 A (高速船 - 推薦)】關西機場 T1 (12號櫃檯) / T2 (接駁車) → 高速船碼頭",
+                        "【方案 A (高速船 - 推薦)】關西機場 T1 (12號櫃檯) / T2 (接駁車) ➔ 高速船碼頭",
                         "搭乘：Bay Shuttle 高速船 (往神戶機場)",
-                        "下車：神戶機場棧橋 → 步行至神戶機場站",
+                        "下車：神戶機場棧橋 ➔ 步行至神戶機場站",
                         "搭乘：Port Liner 港灣人工島線 (往三宮)",
                         "下車：三宮站",
                         "【方案 B (JR)】關西機場站",
@@ -248,23 +253,23 @@
                 day: 2, date: "02/17(二)", title: "神戶文創＆浪漫夜景", weather: "10°C", weatherIcon: "sun",
                 timeline: [
                     { type: 'transport', time: '約 35 分鐘', title: '神戶美利堅公園東方大酒店 ➔ 兵庫縣立美術館', icon: 'train-tram', ticket: 'IC 卡', routes: [
-                        "上車：飯店接駁巴士 → 三宮站",
-                        "進站：阪神 三宮站",
+                        "上車：飯店接駁巴士 ➔ 三宮站",
+                        "進站：阪神 神戶三宮站",
                         "搭乘：阪神本線 普通 (往大阪梅田)",
                         "下車：岩屋站 (Iwaya)",
-                        "出口：南口 → 步行約 10 分鐘"
+                        "出口：南口 ➔ 步行約 10 分鐘"
                     ] },
                     { type: 'activity', time: '10:00', title: '兵庫縣立美術館', icon: 'palette', detail: '安藤忠雄操刀設計，欣賞極簡清水模建築與海景，與巨大「青蘋果」合影' },
                     { type: 'transport', time: '15 分鐘', title: '兵庫縣立美術館 ➔ 神戶舊居留地', icon: 'train-tram', ticket: 'IC 卡', routes: [
                         "上車：岩屋站",
                         "搭乘：阪神本線 (往神戶三宮/元町)",
                         "下車：元町站 (Motomachi)",
-                        "出口：東改札口 → 步行至舊居留地"
+                        "出口：東改札口 ➔ 步行至舊居留地"
                     ] },
                     { type: 'food', time: '12:30', title: '神戶舊居留地', icon: 'utensils', detail: '午餐：感受歐風歷史建築群與質感咖啡廳' },
-                    { type: 'transport', time: '5 分鐘', title: '神戶舊居留地 ➔ 神戸 栄町通', icon: 'person-walking', routes: ["舊居留地 → 步行約 5-10 分鐘 → 榮町通"] },
+                    { type: 'transport', time: '5 分鐘', title: '神戶舊居留地 ➔ 神戸 栄町通', icon: 'person-walking', routes: ["舊居留地 ➔ 步行約 5-10 分鐘 ➔ 榮町通"] },
                     { type: 'shop', time: '14:30', title: '神戸 栄町通', icon: 'pen-nib', detail: '逛街：尋寶隱藏在舊大樓裡的獨立文具店、藝術質感小物與家飾' },
-                    { type: 'transport', time: '15 分鐘', title: '神戸 栄町通 ➔ 神戶牛排 Ishida. 本店', icon: 'person-walking', routes: ["榮町通 → 步行至三宮站北側 (北長狹通/生田路區域)"] },
+                    { type: 'transport', time: '15 分鐘', title: '神戸 栄町通 ➔ 神戶牛排 Ishida. 本店', icon: 'person-walking', routes: ["榮町通 ➔ 步行至三宮站北側 (北長狹通/生田路區域)"] },
                     { 
                         type: 'food', time: '17:00', title: '神戶牛排 Ishida. 本店', icon: 'fire-burner', 
                         reservation: {
@@ -279,14 +284,14 @@
                         "上車：三宮站前巴士站 (Mint Kobe 下方)",
                         "搭乘：神戶市巴士 18 系統 (往摩耶纜車下)",
                         "下車：摩耶纜車下站",
-                        "轉乘：摩耶 Viewline (纜車 + 索道) → 星之站"
+                        "轉乘：摩耶 Viewline (纜車 + 索道) ➔ 星之站"
                     ] },
                     { type: 'activity', time: '19:00', title: '掬星台', icon: 'star', detail: '特別景點：日本三大夜景，極度浪漫' },
                     { type: 'transport', time: '45 分鐘', title: '掬星台 ➔ 神戶美利堅公園東方大酒店', icon: 'bus', isLong: true, ticket: 'IC 卡', routes: [
                         "上車：星之站 (索道 + 纜車) 下山",
                         "轉乘：神戶市巴士 18 系統 (往三宮)",
                         "下車：三宮站",
-                        "轉乘：飯店接駁巴士 → 飯店"
+                        "轉乘：飯店接駁巴士 ➔ 飯店"
                     ] }
                 ]
             },
@@ -295,13 +300,15 @@
                 timeline: [
                     { type: 'hotel', time: '10:00', title: '神戶美利堅公園東方大酒店', icon: 'bed', detail: 'Check-out' },
                     { type: 'transport', time: '約 60 分鐘', title: '神戶三宮站 ➔ 有馬溫泉站', icon: 'train-subway', isLong: true, ticket: 'IC 卡', routes: [
-                        "【方案 A (巴士)】三宮巴士總站 (Mint Kobe 1F)",
+                        "【方案 A (巴士 - 最直達)】",
+                        "上車：三宮巴士總站 (Mint Kobe 1F)",
                         "搭乘：阪急/JR 高速巴士 (往有馬溫泉)",
                         "下車：有馬溫泉站",
-                        "【方案 B (地下鐵)】三宮站",
+                        "【方案 B (地下鐵+電鐵)】",
+                        "上車：神戶市營地下鐵 三宮站",
                         "搭乘：神戶市營地下鐵 (往谷上)",
-                        "轉乘：谷上站 (同月台) → 神戶電鐵有馬線 (往三田/有馬)",
-                        "轉乘：有馬口站 → 有馬溫泉線",
+                        "轉乘：谷上站 (同月台) ➔ 神戶電鐵有馬線 (往三田/有馬)",
+                        "轉乘：有馬口站 ➔ 有馬溫泉線",
                         "下車：有馬溫泉站"
                     ] },
                     { type: 'transport', time: '11:30', title: '有馬溫泉', icon: 'map', detail: '行程：溫泉街老舖巡禮、品嚐炭酸煎餅' },
@@ -359,14 +366,14 @@
                         "進站：本町站 (Y13)",
                         "搭乘：大阪地下鐵 四橋線 (往西梅田)",
                         "下車：肥後橋站 (Y12)",
-                        "出口：3號出口 → 步行至中之島"
+                        "出口：3號出口 ➔ 步行至中之島"
                     ] }, 
                     { type: 'activity', time: '10:00', title: '中之島公園', icon: 'water', detail: '活動：散步 (美術館、童書森林與紅磚公會堂，寫意早晨)' },
                     { type: 'transport', time: '15 分鐘', title: '肥後橋站 ➔ 四橋站 (南堀江)', icon: 'train-subway', ticket: 'IC 卡', routes: [
                         "進站：肥後橋站 (Y12)",
                         "搭乘：大阪地下鐵 四橋線 (往住之江公園)",
                         "下車：四橋站 (Y14)",
-                        "出口：6號出口 → 步行至 Orange Street"
+                        "出口：6號出口 ➔ 步行至 Orange Street"
                     ] },
                     { type: 'shop', time: '13:30', title: 'Orange Street', icon: 'tent', detail: '逛街：南堀江，匯集 Patagonia 等戶外山系服飾、潮流運動配件與設計家品' },
                     { type: 'transport', time: '15 分鐘', title: '四橋站 ➔ 西梅田站', icon: 'train-subway', ticket: 'IC 卡', routes: [
@@ -377,7 +384,7 @@
                     ] },
                     { type: 'shop', time: '15:30', title: '梅田 Loft', icon: 'bag-shopping', detail: '集中採購：美術用品' },
                     { type: 'shop', time: '16:30', title: 'SteP SPORTS Run City Osaka', icon: 'shoe-prints', detail: '位於茶屋町，LOFT對面，跑者聖地，專業跑鞋' },
-                    { type: 'transport', time: '15 分鐘', title: '梅田茶屋町 ➔ 梅田藍天大廈', icon: 'person-walking', routes: ["茶屋町 → 穿越梅田地下街 (跟隨 Sky Building 指標) → 藍天大廈"] },
+                    { type: 'transport', time: '15 分鐘', title: '梅田茶屋町 ➔ 梅田藍天大廈', icon: 'person-walking', routes: ["茶屋町 ➔ 穿越梅田地下街 (跟隨 Sky Building 指標) ➔ 藍天大廈"] },
                     { type: 'activity', time: '18:00', title: '空中庭園展望台', icon: 'sun', detail: '地點：梅田藍天大廈，看夕陽漸層至夜景' },
                     { type: 'transport', time: '15 分鐘', title: '梅田藍天大廈 ➔ 東急stay大阪本町酒店', icon: 'train-subway', ticket: 'IC 卡', routes: [
                         "進站：梅田站 (M16)",
@@ -422,20 +429,20 @@
                 timeline: [
                     { type: 'hotel', time: '09:00', title: '東急stay大阪本町酒店', icon: 'bed', detail: 'Check-out & 準備行李' },
                     { type: 'transport', time: '約 15 分鐘', title: '本町站 ➔ 天下茶屋站 (寄放行李)', icon: 'train-subway', ticket: 'IC 卡', routes: [
-                        "進站：本町站 (K15 - 堺筋線)",
-                        "搭乘：大阪地下鐵 堺筋線 (往天下茶屋)",
-                        "下車：天下茶屋站 (K20)",
-                        "動作：出閘後，於南海電鐵側尋找置物櫃寄放大型行李"
+                        "上車：本町站 (K15 堺筋線) - (需由御堂筋線月台步行至堺筋線月台，或先搭御堂筋線至動物園前轉乘)",
+                        "建議路線：本町站 (M18) 搭乘御堂筋線 (往天王寺) ➔ 動物園前站 (M22) 轉乘 堺筋線 (K19) ➔ 天下茶屋 (K20)",
+                        "下車：天下茶屋站",
+                        "動作：出閘後，於南海電鐵改札口附近尋找置物櫃寄放大型行李"
                     ] },
-                    { type: 'transport', time: '約 90 分鐘', title: '天下茶屋站 ➔ 極樂橋站 (高野山)', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
+                    { type: 'transport', time: '約 90 分鐘', title: '天下茶屋站 ➔ 高野山站', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
                         "進站：南海 天下茶屋站",
-                        "搭乘：南海高野線 特急 Koya 或 快速急行 (往極樂橋)",
+                        "搭乘：南海高野線 特急Koya / 快速急行 (往極樂橋)",
                         "下車：極樂橋站",
                         "轉乘：高野山纜車 (5分鐘) ➔ 高野山站",
                         "轉乘：南海林間巴士 ➔ 奧之院口"
                     ] },
                     { type: 'activity', time: '14:30', title: '奧之院', icon: 'torii-gate', detail: '參拜：高野山 (日本佛教聖地，漫步於千年杉木林參道，感受莊嚴肅穆的氛圍)' },
-                    { type: 'transport', time: '約 100 分鐘', title: '高野山 ➔ 天下茶屋站 (領行李)', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
+                    { type: 'transport', time: '約 100 分鐘', title: '高野山 ➔ 天下茶屋 (領行李)', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
                         "上車：奧之院前巴士站",
                         "搭乘：南海林間巴士 ➔ 高野山站",
                         "轉乘：纜車 ➔ 極樂橋站",
@@ -444,10 +451,10 @@
                         "動作：領取寄放的行李"
                     ] },
                     { type: 'transport', time: '約 60 分鐘', title: '天下茶屋站 ➔ 和歌山市站', icon: 'train', isLong: true, ticket: 'IC 卡', routes: [
-                        "進站：南海 天下茶屋站 (無需出站，同站體轉乘)",
+                        "進站：南海 天下茶屋站 (同站體)",
                         "搭乘：南海本線 特急 Southern (往和歌山市)",
                         "下車：和歌山市站",
-                        "轉乘：公車/計程車前往和歌山城旁飯店"
+                        "轉乘：巴士/計程車前往飯店 (Daiwa Roynet)"
                     ] },
                     { type: 'hotel', time: '18:00', title: '和歌山大和ROYNET酒店', icon: 'bed', detail: 'Check-in' },
                     { type: 'food', time: '18:30', title: '井出商店', icon: 'utensils', detail: '晚餐：步行前往品嚐全日本知名的正宗和歌山拉麵 (豚骨醬油)' }
@@ -683,7 +690,9 @@
                             <span><i className="fa-regular fa-clock mr-1"></i>{(item.hours || '').split(',')[0]}</span>
                             <span className="text-red-400"><i className="fa-solid fa-ban mr-1"></i>{item.closed}</span>
                         </div>
-                        <div className="flex items-center gap-1"><i className="fa-solid fa-location-dot text-slate-300"></i> {item.address}</div>
+                        <div className="flex items-center gap-1 cursor-pointer hover:text-blue-500 transition-colors" onClick={(e) => openMap(e, item.address)}>
+                            <i className="fa-solid fa-location-dot text-slate-300"></i> <span className="underline decoration-dotted">{item.address}</span>
+                        </div>
                     </div>
                 </div>
             );
@@ -700,7 +709,7 @@
             return (
                 <div className="pb-24 fade-in">
                     {/* 日期選擇器 */}
-                    <div className="sticky top-0 z-40 bg-[#fdfafb]/90 backdrop-blur-md pt-4 pb-2 px-2 overflow-x-auto whitespace-nowrap scrollbar-hide border-b border-gray-100">
+                    <div className="sticky top-0 z-40 bg-[#fdfafb]/95 backdrop-blur-md pt-safe-top pb-2 px-2 overflow-x-auto whitespace-nowrap scrollbar-hide border-b border-gray-100">
                         {ITINERARY.map((item) => {
                             const dayTheme = REGION_COLORS[DAY_REGION_MAP[item.day]] || COLORS.main;
                             const isSelected = selectedDay === item.day;
@@ -834,23 +843,6 @@
 
             const themeColor = COLORS.main.hex;
 
-            // 分類的鐵路資訊
-            const RAIL_INFO = {
-                cross: [
-                    {name: "ICOCA / Suica", desc: "關西地區通用，搭車購物皆可", icon: "ticket"},
-                    {name: "Haruka 特急", desc: "關西機場 ⇄ 京都/大阪 (需劃位)", icon: "train-subway"},
-                    {name: "阪神電鐵", desc: "大阪難波 ⇄ 神戶三宮", icon: "train"},
-                    {name: "近鐵電車", desc: "大阪難波 ⇄ 奈良", icon: "train-tram"},
-                    {name: "南海電鐵", desc: "關西機場 ⇄ 難波 / 和歌山市", icon: "train"},
-                ],
-                city: [
-                    {name: "大阪地下鐵", desc: "御堂筋線(紅)、四橋線(藍) 最常用", icon: "train-subway"},
-                    {name: "神戶市營地鐵", desc: "三宮 ⇄ 谷上 (往有馬溫泉)", icon: "train"},
-                    {name: "和歌山電鐵", desc: "貴志川線 (貓咪站長)", icon: "cat"},
-                    {name: "Port Liner", desc: "神戶機場/港灣人工島線", icon: "train-tram"},
-                ]
-            };
-
             return (
                 <div className="px-5 pt-8 pb-24 fade-in">
                     <div className="flex glass-inner rounded-xl p-1 mb-6">
@@ -908,23 +900,6 @@
                                             <ul className="text-[10px] text-slate-500 list-disc list-inside space-y-1 bg-white/30 p-2 rounded-lg">
                                                 {p.details.map((d, j) => <li key={j}>{d}</li>)}
                                             </ul>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="pt-4 border-t border-gray-200">
-                                <h3 className="text-sm font-bold text-gray-400 mb-2 pl-1">跨地區移動</h3>
-                                <div className="space-y-3">
-                                    {RAIL_INFO.cross.map((r, i) => (
-                                        <div key={i} className="glass-card p-4 rounded-2xl flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center">
-                                                <i className={`fa-solid fa-${r.icon}`}></i>
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-slate-700">{r.name}</h4>
-                                                <p className="text-xs text-gray-400">{r.desc}</p>
-                                            </div>
                                         </div>
                                     ))}
                                 </div>
